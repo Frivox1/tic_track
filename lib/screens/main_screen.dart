@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tick_track/screens/calendar_screen.dart';
 import 'home_screen.dart';
 import 'label_screen.dart';
 import '../widgets/side_menu.dart';
@@ -17,7 +18,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const LabelScreen(),
-    const Placeholder(),
+    CalendarScreen(),
     const PomodoroScreen(),
   ];
 
