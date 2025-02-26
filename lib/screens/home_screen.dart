@@ -14,6 +14,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 100,
+        forceMaterialTransparency: true,
         title: Padding(
           padding: const EdgeInsets.only(top: 40.0),
           child: const Align(
@@ -114,93 +115,161 @@ class HomeScreen extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
-                  maxWidth: MediaQuery.of(context).size.width * 0.6,
-                ),
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Container(
+                width: MediaQuery.of(context).size.height * 0.7,
+                height: MediaQuery.of(context).size.height * 0.7,
+                padding: const EdgeInsets.all(16.0),
+                child: Stack(
+                  // Utilisation d'un Stack
+                  children: [
+                    Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Ajouter une nouvelle tâche',
+                          'Add a new task',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
                         ),
                         const SizedBox(height: 16),
-                        TextField(
-                          decoration: const InputDecoration(
-                            hintText: 'Titre',
-                            hintStyle: TextStyle(color: Colors.black),
+                        // Title TextField
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          style: const TextStyle(color: Colors.black),
-                          onChanged: (value) => title = value,
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          decoration: const InputDecoration(
-                            hintText: 'Description',
-                            hintStyle: TextStyle(color: Colors.black),
-                          ),
-                          style: const TextStyle(color: Colors.black),
-                          maxLines: 3, // Limite le nombre de lignes visibles
-                          onChanged: (value) => description = value,
-                        ),
-                        const SizedBox(height: 8),
-                        ValueListenableBuilder<Box<Label>>(
-                          valueListenable:
-                              HiveService.getLabelBox().listenable(),
-                          builder: (context, box, _) {
-                            final labels = box.values.toList();
-                            return DropdownButton<Label>(
-                              value: selectedLabel,
-                              hint: const Text(
-                                'Choisir un label',
-                                style: TextStyle(color: Colors.black),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Title',
+                              hintStyle: const TextStyle(color: Colors.black54),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
                               ),
-                              isExpanded: true,
-                              onChanged: (Label? value) {
-                                setState(() {
-                                  selectedLabel = value;
-                                });
-                              },
-                              items:
-                                  labels.map<DropdownMenuItem<Label>>((
-                                    Label label,
-                                  ) {
-                                    return DropdownMenuItem<Label>(
-                                      value: label,
-                                      child: Row(
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundColor: Color(label.color),
-                                            radius: 10,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            label.name,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                            );
-                          },
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            style: const TextStyle(color: Colors.black),
+                            onChanged: (value) => title = value,
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 14),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Description',
+                              hintStyle: const TextStyle(color: Colors.black54),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            style: const TextStyle(color: Colors.black),
+                            maxLines: 2,
+                            onChanged: (value) => description = value,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ValueListenableBuilder<Box<Label>>(
+                            valueListenable:
+                                HiveService.getLabelBox().listenable(),
+                            builder: (context, box, _) {
+                              final labels = box.values.toList();
+                              return DropdownButton<Label>(
+                                value: selectedLabel,
+                                hint: const Text(
+                                  'Choose a label',
+                                  style: TextStyle(color: Colors.black54),
+                                ),
+                                isExpanded: true,
+                                underline: SizedBox(),
+                                onChanged: (Label? value) {
+                                  setState(() {
+                                    selectedLabel = value;
+                                  });
+                                },
+                                items:
+                                    labels.map<DropdownMenuItem<Label>>((
+                                      Label label,
+                                    ) {
+                                      return DropdownMenuItem<Label>(
+                                        value: label,
+                                        child: Row(
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: Color(
+                                                label.color,
+                                              ),
+                                              radius: 6,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(label.name),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        // Due date button
                         ElevatedButton(
                           child: Text(
-                            'Date et heure d\'échéance: ${_formatDateTime(dueDate)}',
+                            'Due date: ${_formatDateTime(dueDate)}',
                             style: const TextStyle(color: Colors.black),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[200],
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
                           ),
                           onPressed: () async {
                             final DateTime? pickedDate = await showDatePicker(
@@ -231,41 +300,50 @@ class HomeScreen extends StatelessWidget {
                             }
                           },
                         ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                              child: const Text(
-                                'Annuler',
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                            TextButton(
-                              child: const Text(
-                                'Ajouter',
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              onPressed: () {
-                                if (title.isNotEmpty && selectedLabel != null) {
-                                  final newTask = Task(
-                                    title: title,
-                                    description: description,
-                                    label: selectedLabel!.name,
-                                    dueDate: dueDate,
-                                    status: 'To Do',
-                                  );
-                                  HiveService.addTask(newTask);
-                                  Navigator.of(context).pop();
-                                }
-                              },
-                            ),
-                          ],
-                        ),
                       ],
                     ),
-                  ),
+                    Positioned(
+                      bottom: 10,
+                      right: 20,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              if (title.isNotEmpty && selectedLabel != null) {
+                                final newTask = Task(
+                                  title: title,
+                                  description: description,
+                                  label: selectedLabel!.name,
+                                  dueDate: dueDate,
+                                  status: 'To Do',
+                                );
+                                HiveService.addTask(newTask);
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            child: const Text(
+                              'Add',
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
