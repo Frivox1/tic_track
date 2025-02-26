@@ -50,8 +50,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        toolbarHeight: 100,
         title: Padding(
-          padding: const EdgeInsets.only(top: 16.0),
+          padding: const EdgeInsets.only(top: 40.0),
           child: const Align(
             alignment: Alignment.centerLeft,
             child: Text(
@@ -60,8 +61,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 1,
       ),
       body: Column(
         children: [

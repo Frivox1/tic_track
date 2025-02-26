@@ -4,7 +4,6 @@ import '../services/hive_service.dart';
 import '../models/task.dart';
 import '../models/label.dart';
 import '../screens/task_detail_screen.dart';
-import 'package:hive_ce/hive.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -14,8 +13,9 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 100,
         title: Padding(
-          padding: const EdgeInsets.only(top: 16.0),
+          padding: const EdgeInsets.only(top: 40.0),
           child: const Align(
             alignment: Alignment.centerLeft,
             child: Text(

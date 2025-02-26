@@ -20,8 +20,9 @@ class _LabelScreenState extends State<LabelScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 100,
         title: Padding(
-          padding: const EdgeInsets.only(top: 16.0),
+          padding: const EdgeInsets.only(top: 40.0),
           child: const Align(
             alignment: Alignment.centerLeft,
             child: Text(
