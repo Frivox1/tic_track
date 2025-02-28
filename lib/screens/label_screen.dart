@@ -31,6 +31,7 @@ class _LabelScreenState extends State<LabelScreen> {
             ),
           ),
         ),
+        forceMaterialTransparency: true,
       ),
       body: Column(
         children: [
@@ -55,8 +56,16 @@ class _LabelScreenState extends State<LabelScreen> {
             decoration: InputDecoration(
               hintText: 'New label',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black, width: 2),
               ),
               filled: true,
               fillColor: Colors.black.withOpacity(0.05),

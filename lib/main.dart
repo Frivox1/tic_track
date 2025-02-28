@@ -3,10 +3,17 @@ import 'package:tick_track/screens/main_screen.dart';
 import 'services/hive_service.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:local_notifier/local_notifier.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
+
+  // Initialisation des notifications locales
+  await localNotifier.setup(
+    appName: 'Tick Track',
+    shortcutPolicy: ShortcutPolicy.requireCreate,
+  );
 
   WindowOptions windowOptions = const WindowOptions(
     size: Size(1300, 800),

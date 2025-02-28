@@ -61,6 +61,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
           ),
         ),
+        forceMaterialTransparency: true,
       ),
       body: Column(
         children: [

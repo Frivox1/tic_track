@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:local_notifier/local_notifier.dart';
 
 enum PomodoroState { work, shortBreak, longBreak }
 
@@ -32,7 +33,7 @@ class PomodoroNotifier extends StateNotifier<PomodoroModel> {
 
   Timer? _timer;
   bool isRunning = false;
-  int selectedWorkDuration = 25; // Work duration in minutes
+  int selectedWorkDuration = 25;
 
   void startStopTimer() {
     if (isRunning) {
@@ -60,16 +61,18 @@ class PomodoroNotifier extends StateNotifier<PomodoroModel> {
         final newCompletedSessions = state.completedWorkSessions + 1;
         if (newCompletedSessions % 4 == 0) {
           state = PomodoroModel(
-            timeLeft: selectedWorkDuration * 60,
+            timeLeft: 15 * 60,
             state: PomodoroState.longBreak,
             completedWorkSessions: newCompletedSessions,
           );
+          _showNotification('Long break', 'It\'s time to take a long break!');
         } else {
           state = PomodoroModel(
-            timeLeft: selectedWorkDuration * 60 ~/ 5,
+            timeLeft: 5 * 60,
             state: PomodoroState.shortBreak,
             completedWorkSessions: newCompletedSessions,
           );
+          _showNotification('Short break', 'It\'s time to take a short break!');
         }
         break;
       case PomodoroState.shortBreak:
@@ -79,6 +82,7 @@ class PomodoroNotifier extends StateNotifier<PomodoroModel> {
           state: PomodoroState.work,
           completedWorkSessions: state.completedWorkSessions,
         );
+        _showNotification('Work session', 'It\'s time to get back to work!');
         break;
     }
     isRunning = false;
@@ -97,6 +101,14 @@ class PomodoroNotifier extends StateNotifier<PomodoroModel> {
   void updateDuration(int minutes) {
     selectedWorkDuration = minutes;
     resetTimer();
+  }
+
+  void _showNotification(String title, String body) {
+    LocalNotification notification = LocalNotification(
+      title: title,
+      body: body,
+    );
+    notification.show();
   }
 }
 
