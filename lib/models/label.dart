@@ -10,5 +10,8 @@ class Label extends HiveObject {
   @HiveField(1)
   late int color;
 
-  Label({required this.name, required this.color});
+  @HiveField(2)
+  late int categoryId;
+
+  Label({required this.name, required this.color, required this.categoryId});
 }

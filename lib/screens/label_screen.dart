@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/hive_service.dart';
 import '../models/label.dart';
-import 'package:hive_ce/hive.dart';
+import '../models/category.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
@@ -15,6 +15,7 @@ class LabelScreen extends StatefulWidget {
 class _LabelScreenState extends State<LabelScreen> {
   final TextEditingController _labelController = TextEditingController();
   Color _selectedColor = Colors.blue;
+  Category? _selectedCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +92,25 @@ class _LabelScreenState extends State<LabelScreen> {
                 ),
               ),
             ],
+          ),
+          SizedBox(height: 24),
+          DropdownButton<Category>(
+            value: _selectedCategory,
+            hint: Text('Choose a category for this label'),
+            onChanged: (Category? newValue) {
+              setState(() {
+                _selectedCategory = newValue;
+              });
+            },
+            items:
+                HiveService.getCategoryBox().values
+                    .map<DropdownMenuItem<Category>>((Category category) {
+                      return DropdownMenuItem<Category>(
+                        value: category,
+                        child: Text(category.name),
+                      );
+                    })
+                    .toList(),
           ),
           SizedBox(height: 40),
           ElevatedButton.icon(
@@ -176,14 +196,20 @@ class _LabelScreenState extends State<LabelScreen> {
   }
 
   void _addLabel() {
-    if (_labelController.text.isNotEmpty) {
+    if (_labelController.text.isNotEmpty && _selectedCategory != null) {
       final newLabel = Label(
         name: _labelController.text,
         color: _selectedColor.value,
+        categoryId: _selectedCategory!.key as int,
       );
       HiveService.addLabel(newLabel);
+      _selectedCategory!.labelIds.add(newLabel.key.toString());
+      HiveService.updateCategory(_selectedCategory!);
       _labelController.clear();
-      setState(() => _selectedColor = Colors.blue);
+      setState(() {
+        _selectedColor = Colors.blue;
+        _selectedCategory = null;
+      });
     }
   }
 

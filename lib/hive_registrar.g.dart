@@ -3,11 +3,13 @@
 // Check in to version control
 
 import 'package:hive_ce/hive.dart';
+import 'package:tick_track/models/category.dart';
 import 'package:tick_track/models/label.dart';
 import 'package:tick_track/models/task.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
+    registerAdapter(CategoryAdapter());
     registerAdapter(LabelAdapter());
     registerAdapter(TaskAdapter());
   }
