@@ -71,7 +71,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   maxLines: 3,
                 ),
                 SizedBox(height: 20),
-                _buildLabelDropdown(),
+                _buildLabelAndCategory(),
                 SizedBox(height: 20),
                 _buildDatePicker(),
                 SizedBox(height: 24),
@@ -125,63 +125,106 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-  Widget _buildLabelDropdown() {
+  Widget _buildLabelAndCategory() {
     return ValueListenableBuilder<Box<Label>>(
       valueListenable: HiveService.getLabelBox().listenable(),
       builder: (context, box, _) {
         final labels = box.values.toList();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        return Row(
           children: [
-            Text(
-              'Label',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 6),
-            DropdownButtonFormField<Label>(
-              value: _selectedLabel,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.black, width: 2),
-                ),
-                filled: true,
-                fillColor: Colors.grey[100],
-              ),
-              style: TextStyle(fontSize: 18, color: Colors.black),
-              onChanged: (Label? newValue) {
-                setState(() {
-                  _selectedLabel = newValue;
-                });
-              },
-              items:
-                  labels.map<DropdownMenuItem<Label>>((Label label) {
-                    return DropdownMenuItem<Label>(
-                      value: label,
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Color(label.color),
-                            radius: 6,
-                          ),
-                          SizedBox(width: 10),
-                          Text(label.name),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-            ),
+            Expanded(child: _buildLabelSection(labels)),
+            SizedBox(width: 16),
+            Expanded(child: _buildCategorySection()),
           ],
         );
       },
+    );
+  }
+
+  Widget _buildLabelSection(List<Label> labels) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Label',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: DropdownButtonFormField<Label>(
+            value: _selectedLabel,
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black, width: 2),
+              ),
+            ),
+
+            onChanged: (Label? newValue) {
+              setState(() {
+                _selectedLabel = newValue;
+              });
+            },
+            items:
+                labels.map<DropdownMenuItem<Label>>((Label label) {
+                  return DropdownMenuItem<Label>(
+                    value: label,
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Color(label.color),
+                          radius: 6,
+                        ),
+                        SizedBox(width: 8),
+                        Text(label.name),
+                      ],
+                    ),
+                  );
+                }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategorySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Category',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 6),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            _selectedLabel != null
+                ? HiveService.getCategory(_selectedLabel!.categoryId)?.name ??
+                    'Aucune catégorie'
+                : 'Sélectionnez un label',
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      ],
     );
   }
 
@@ -220,30 +263,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   Widget _buildSaveAndDeleteButtons() {
     return Center(
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _saveTask,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Save',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
+          Expanded(
             child: OutlinedButton(
               onPressed: _confirmDeleteTask,
               style: OutlinedButton.styleFrom(
@@ -274,6 +297,25 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text('Delete Task'),
+              ),
+            ),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: _saveTask,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Save',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
               ),
             ),
           ),

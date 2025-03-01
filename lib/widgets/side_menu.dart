@@ -19,9 +19,10 @@ class SideMenu extends StatelessWidget {
         children: [
           SizedBox(height: 45),
           _buildListTile(0, Icons.view_agenda_outlined, 'Kanban'),
-          _buildListTile(1, Icons.label_important_outline_rounded, 'Labels'),
-          _buildListTile(2, Icons.calendar_today_outlined, 'Calendar'),
-          _buildListTile(3, Icons.timer_outlined, 'Pomodoro'),
+          _buildListTile(1, Icons.category_outlined, 'Categories'),
+          _buildListTile(2, Icons.label_important_outline_rounded, 'Labels'),
+          _buildListTile(3, Icons.calendar_today_outlined, 'Calendar'),
+          _buildListTile(4, Icons.timer_outlined, 'Pomodoro'),
         ],
       ),
     );

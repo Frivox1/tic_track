@@ -1,18 +1,33 @@
-import 'package:hive_ce/hive.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import '../models/task.dart';
 import '../models/label.dart';
+import '../models/category.dart';
 
 class HiveService {
   static const String taskBoxName = 'tasks';
   static const String labelBoxName = 'labels';
+  static const String categoryBoxName = 'categories';
 
   static Future<void> initHive() async {
     await Hive.initFlutter();
-    Hive.registerAdapter(TaskAdapter());
-    Hive.registerAdapter(LabelAdapter());
-    await Hive.openBox<Task>(taskBoxName);
-    await Hive.openBox<Label>(labelBoxName);
+
+    // Vérifie si les adaptateurs sont déjà enregistrés pour éviter les erreurs
+    if (!Hive.isAdapterRegistered(TaskAdapter().typeId)) {
+      Hive.registerAdapter(TaskAdapter());
+    }
+    if (!Hive.isAdapterRegistered(LabelAdapter().typeId)) {
+      Hive.registerAdapter(LabelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(CategoryAdapter().typeId)) {
+      Hive.registerAdapter(CategoryAdapter());
+    }
+
+    // Réouvre les Box après suppression
+    await Future.wait([
+      Hive.openBox<Category>(categoryBoxName),
+      Hive.openBox<Task>(taskBoxName),
+      Hive.openBox<Label>(labelBoxName),
+    ]);
   }
 
   static Box<Task> getTaskBox() {
@@ -56,5 +71,26 @@ class HiveService {
     } catch (e) {
       return null;
     }
+  }
+
+  static Box<Category> getCategoryBox() {
+    return Hive.box<Category>('categories');
+  }
+
+  static void addCategory(Category category) {
+    getCategoryBox().add(category);
+  }
+
+  static void updateCategory(Category category) {
+    category.save();
+  }
+
+  static void deleteCategory(Category category) {
+    category.delete();
+  }
+
+  static Category? getCategory(int categoryId) {
+    final box = Hive.box<Category>('categories');
+    return box.get(categoryId);
   }
 }
