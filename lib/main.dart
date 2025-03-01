@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:tick_track/screens/main_screen.dart';
 import 'services/hive_service.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:local_notifier/local_notifier.dart';
+import 'providers/app_state_provider.dart';
+import 'providers/selected_index_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +32,15 @@ void main() async {
   });
 
   await HiveService.initHive();
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppStateProvider()),
+        ChangeNotifierProvider(create: (_) => SelectedIndexProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -50,7 +60,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.grey[100],
         visualDensity: VisualDensity.adaptivePlatformDensity,
         fontFamily: 'Raleway',
-        dialogTheme: DialogThemeData(backgroundColor: Colors.grey[100]),
+        dialogTheme: DialogTheme(backgroundColor: Colors.grey[100]),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(foregroundColor: Colors.black),
         ),
@@ -75,7 +85,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const MainScreen(),
+      home: MainScreen(),
     );
   }
 }

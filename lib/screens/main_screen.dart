@@ -1,53 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tick_track/screens/calendar_screen.dart';
 import 'category_screen.dart';
 import 'home_screen.dart';
 import 'label_screen.dart';
 import '../widgets/side_menu.dart';
 import 'pomodoro_screen.dart';
+import '../providers/app_state_provider.dart';
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
-
-  @override
-  _MainScreenState createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
+class MainScreen extends StatelessWidget {
+  MainScreen({Key? key}) : super(key: key);
 
   final List<Widget> _screens = [
-    const HomeScreen(),
-    const CategoryScreen(),
-    const LabelScreen(),
+    HomeScreen(),
+    CategoryScreen(),
+    LabelScreen(),
     CalendarScreen(),
-    const PomodoroScreen(),
+    PomodoroScreen(),
   ];
-
-  void _onItemSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
-        children: [
-          SizedBox(
-            width: 180,
-            child: SideMenu(
-              selectedIndex: _selectedIndex,
-              onItemSelected: _onItemSelected,
-            ),
+    return Consumer<AppStateProvider>(
+      builder: (context, appState, child) {
+        return Scaffold(
+          body: Row(
+            children: [
+              // Menu latéral (Sidebar)
+              SizedBox(width: 180, child: SideMenu()),
+              const VerticalDivider(
+                thickness: 0.5,
+                width: 1,
+                color: Colors.grey,
+              ),
+              Expanded(
+                child: IndexedStack(
+                  index: appState.selectedIndex,
+                  children: _screens,
+                ),
+              ),
+            ],
           ),
-          const VerticalDivider(thickness: 0.5, width: 1, color: Colors.grey),
-          Expanded(
-            child: IndexedStack(index: _selectedIndex, children: _screens),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

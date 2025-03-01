@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/task.dart';
 import '../models/label.dart';
-import '../services/hive_service.dart';
-import 'package:hive_ce_flutter/hive_flutter.dart';
+import '../providers/app_state_provider.dart';
 import 'package:intl/intl.dart';
 
 class TaskDetailScreen extends StatefulWidget {
@@ -28,65 +28,73 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       text: widget.task.description,
     );
     _dueDate = widget.task.dueDate;
-    _selectedLabel = HiveService.getLabelByName(widget.task.label);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        toolbarHeight: 120,
-        title: Text(
-          'Task Details',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        forceMaterialTransparency: true,
-        surfaceTintColor: Colors.white,
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.5,
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height,
+    return Consumer<AppStateProvider>(
+      builder: (context, appState, child) {
+        _selectedLabel = appState.getLabelByName(widget.task.label);
+
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            toolbarHeight: 120,
+            title: const Text(
+              'Task Details',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildTextField(_titleController, 'Title'),
-                SizedBox(height: 12),
-                _buildTextField(
-                  _descriptionController,
-                  'Description',
-                  maxLines: 3,
+            centerTitle: true,
+            elevation: 0,
+            backgroundColor: Colors.white,
+            forceMaterialTransparency: true,
+            surfaceTintColor: Colors.white,
+          ),
+          body: SingleChildScrollView(
+            child: Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.5,
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height,
                 ),
-                SizedBox(height: 20),
-                _buildLabelAndCategory(),
-                SizedBox(height: 20),
-                _buildDatePicker(),
-                SizedBox(height: 24),
-                _buildStatusChip(),
-                SizedBox(height: 32),
-                _buildSaveAndDeleteButtons(),
-              ],
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildTitleField(_titleController, 'Title'),
+                    const SizedBox(height: 12),
+                    _buildTextField(
+                      _descriptionController,
+                      'Description',
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildLabelAndCategory(appState),
+                    const SizedBox(height: 20),
+                    _buildDatePicker(),
+                    const SizedBox(height: 24),
+                    _buildStatusChip(),
+                    const SizedBox(height: 32),
+                    _buildSaveAndDeleteButtons(appState),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildTextField(
+  Widget _buildTitleField(
     TextEditingController controller,
     String label, {
     int maxLines = 1,
@@ -96,17 +104,21 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         TextField(
           controller: controller,
           maxLines: maxLines,
-          style: TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 16),
+          maxLength: 12,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey[100],
-            contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 14,
+              horizontal: 16,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -125,31 +137,69 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-  Widget _buildLabelAndCategory() {
-    return ValueListenableBuilder<Box<Label>>(
-      valueListenable: HiveService.getLabelBox().listenable(),
-      builder: (context, box, _) {
-        final labels = box.values.toList();
-        return Row(
-          children: [
-            Expanded(child: _buildLabelSection(labels)),
-            SizedBox(width: 16),
-            Expanded(child: _buildCategorySection()),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildLabelSection(List<Label> labels) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    int maxLines = 1,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
+          label,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          style: const TextStyle(fontSize: 16),
+          maxLength: 80,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey[100],
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 14,
+              horizontal: 16,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLabelAndCategory(AppStateProvider appState) {
+    final labels = appState.labels;
+    return Row(
+      children: [
+        Expanded(child: _buildLabelSection(labels, appState)),
+        const SizedBox(width: 16),
+        Expanded(child: _buildCategorySection(appState)),
+      ],
+    );
+  }
+
+  Widget _buildLabelSection(List<Label> labels, AppStateProvider appState) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
           'Label',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Container(
           decoration: BoxDecoration(
             color: Colors.grey[100],
@@ -172,14 +222,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 borderSide: BorderSide(color: Colors.black, width: 2),
               ),
             ),
-
             onChanged: (Label? newValue) {
               setState(() {
                 _selectedLabel = newValue;
               });
             },
             items:
-                labels.map<DropdownMenuItem<Label>>((Label label) {
+                labels.map((Label label) {
                   return DropdownMenuItem<Label>(
                     value: label,
                     child: Row(
@@ -200,28 +249,28 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-  Widget _buildCategorySection() {
+  Widget _buildCategorySection(AppStateProvider appState) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Category',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
             _selectedLabel != null
-                ? HiveService.getCategory(_selectedLabel!.categoryId)?.name ??
-                    'Aucune catégorie'
-                : 'Sélectionnez un label',
-            style: TextStyle(fontSize: 16),
+                ? appState.getCategory(_selectedLabel!.categoryId)?.name ??
+                    'No Category'
+                : 'Select a label',
+            style: const TextStyle(fontSize: 16),
           ),
         ),
       ],
@@ -234,13 +283,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
+          const Text(
             'Due Date',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           Text(
             DateFormat('dd MMM yyyy').format(_dueDate),
-            style: TextStyle(fontSize: 16, color: Colors.black87),
+            style: const TextStyle(fontSize: 16, color: Colors.black87),
           ),
         ],
       ),
@@ -249,26 +298,29 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   Widget _buildStatusChip() {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
         color: _getStatusColor(widget.task.status),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         widget.task.status,
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 
-  Widget _buildSaveAndDeleteButtons() {
+  Widget _buildSaveAndDeleteButtons(AppStateProvider appState) {
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Expanded(
             child: OutlinedButton(
-              onPressed: _confirmDeleteTask,
+              onPressed: () => _confirmDeleteTask(appState),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.red, width: 2),
                 shape: RoundedRectangleBorder(
@@ -277,22 +329,18 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 foregroundColor: Colors.red,
                 textStyle: TextStyle(fontSize: 18),
               ).copyWith(
-                backgroundColor: MaterialStateProperty.resolveWith<Color?>((
-                  states,
-                ) {
-                  if (states.contains(MaterialState.hovered)) {
-                    return Colors.red;
-                  }
-                  return Colors.transparent;
-                }),
-                foregroundColor: MaterialStateProperty.resolveWith<Color?>((
-                  states,
-                ) {
-                  if (states.contains(MaterialState.hovered)) {
-                    return Colors.white;
-                  }
-                  return Colors.red;
-                }),
+                backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                  (states) =>
+                      states.contains(MaterialState.hovered)
+                          ? Colors.red
+                          : Colors.transparent,
+                ),
+                foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                  (states) =>
+                      states.contains(MaterialState.hovered)
+                          ? Colors.white
+                          : Colors.red,
+                ),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -303,7 +351,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           SizedBox(width: 12),
           Expanded(
             child: ElevatedButton(
-              onPressed: _saveTask,
+              onPressed: () => _saveTask(appState),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 shape: RoundedRectangleBorder(
@@ -324,78 +372,41 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-  Future<void> _selectDate() async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: _dueDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 365)),
-    );
-    if (pickedDate != null) {
-      setState(() {
-        _dueDate = pickedDate;
-      });
-    }
-  }
-
-  void _saveTask() {
-    if (_selectedLabel == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Please select a label')));
-      return;
-    }
-    widget.task.title = _titleController.text;
-    widget.task.description = _descriptionController.text;
-    widget.task.label = _selectedLabel!.name;
-    widget.task.dueDate = _dueDate;
-    HiveService.updateTask(widget.task);
-    Navigator.pop(context);
-  }
-
-  void _confirmDeleteTask() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Delete Task?'),
-          content: Text('This action is irreversible.'),
-          actions: [
-            TextButton(
-              child: Text('Cancel', style: TextStyle(color: Colors.black)),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              child: Text('Delete', style: TextStyle(color: Colors.red)),
-              onPressed: () {
-                HiveService.deleteTask(widget.task);
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'to do':
-        return Colors.red;
-      case 'in progress':
-        return Colors.orange;
-      case 'done':
+    switch (status) {
+      case 'Done':
         return Colors.green;
+      case 'In Progress':
+        return Colors.orange;
+      case 'To Do':
+        return Colors.red;
       default:
         return Colors.grey;
     }
   }
 
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
+  void _saveTask(AppStateProvider appState) {
+    widget.task
+      ..title = _titleController.text
+      ..description = _descriptionController.text
+      ..label = _selectedLabel?.name ?? ''
+      ..dueDate = _dueDate;
+    appState.updateTask(widget.task);
+    Navigator.pop(context);
+  }
+
+  void _confirmDeleteTask(AppStateProvider appState) {
+    appState.deleteTask(widget.task);
+    Navigator.pop(context);
+  }
+
+  Future<void> _selectDate() async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _dueDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) setState(() => _dueDate = picked);
   }
 }

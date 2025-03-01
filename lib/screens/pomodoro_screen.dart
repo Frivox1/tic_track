@@ -1,13 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:local_notifier/local_notifier.dart';
 
 enum PomodoroState { work, shortBreak, longBreak }
-
-final pomodoroProvider = StateNotifierProvider<PomodoroNotifier, PomodoroModel>(
-  (ref) => PomodoroNotifier(),
-);
 
 class PomodoroModel {
   final int timeLeft;
@@ -21,15 +17,14 @@ class PomodoroModel {
   });
 }
 
-class PomodoroNotifier extends StateNotifier<PomodoroModel> {
-  PomodoroNotifier()
-    : super(
-        PomodoroModel(
-          timeLeft: 25 * 60,
-          state: PomodoroState.work,
-          completedWorkSessions: 0,
-        ),
-      );
+class PomodoroNotifier extends ChangeNotifier {
+  PomodoroModel _model = PomodoroModel(
+    timeLeft: 25 * 60,
+    state: PomodoroState.work,
+    completedWorkSessions: 0,
+  );
+
+  PomodoroModel get model => _model;
 
   Timer? _timer;
   bool isRunning = false;
@@ -40,12 +35,13 @@ class PomodoroNotifier extends StateNotifier<PomodoroModel> {
       _timer?.cancel();
     } else {
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        if (state.timeLeft > 0) {
-          state = PomodoroModel(
-            timeLeft: state.timeLeft - 1,
-            state: state.state,
-            completedWorkSessions: state.completedWorkSessions,
+        if (_model.timeLeft > 0) {
+          _model = PomodoroModel(
+            timeLeft: _model.timeLeft - 1,
+            state: _model.state,
+            completedWorkSessions: _model.completedWorkSessions,
           );
+          notifyListeners();
         } else {
           timer.cancel();
           _switchState();
@@ -53,21 +49,22 @@ class PomodoroNotifier extends StateNotifier<PomodoroModel> {
       });
     }
     isRunning = !isRunning;
+    notifyListeners();
   }
 
   void _switchState() {
-    switch (state.state) {
+    switch (_model.state) {
       case PomodoroState.work:
-        final newCompletedSessions = state.completedWorkSessions + 1;
+        final newCompletedSessions = _model.completedWorkSessions + 1;
         if (newCompletedSessions % 4 == 0) {
-          state = PomodoroModel(
+          _model = PomodoroModel(
             timeLeft: 15 * 60,
             state: PomodoroState.longBreak,
             completedWorkSessions: newCompletedSessions,
           );
           _showNotification('Long break', 'It\'s time to take a long break!');
         } else {
-          state = PomodoroModel(
+          _model = PomodoroModel(
             timeLeft: 5 * 60,
             state: PomodoroState.shortBreak,
             completedWorkSessions: newCompletedSessions,
@@ -77,25 +74,27 @@ class PomodoroNotifier extends StateNotifier<PomodoroModel> {
         break;
       case PomodoroState.shortBreak:
       case PomodoroState.longBreak:
-        state = PomodoroModel(
+        _model = PomodoroModel(
           timeLeft: selectedWorkDuration * 60,
           state: PomodoroState.work,
-          completedWorkSessions: state.completedWorkSessions,
+          completedWorkSessions: _model.completedWorkSessions,
         );
         _showNotification('Work session', 'It\'s time to get back to work!');
         break;
     }
     isRunning = false;
+    notifyListeners();
   }
 
   void resetTimer() {
     _timer?.cancel();
-    state = PomodoroModel(
+    _model = PomodoroModel(
       timeLeft: selectedWorkDuration * 60,
       state: PomodoroState.work,
       completedWorkSessions: 0,
     );
     isRunning = false;
+    notifyListeners();
   }
 
   void updateDuration(int minutes) {
@@ -112,85 +111,96 @@ class PomodoroNotifier extends StateNotifier<PomodoroModel> {
   }
 }
 
-class PomodoroScreen extends ConsumerWidget {
-  const PomodoroScreen({super.key});
+class PomodoroScreen extends StatelessWidget {
+  const PomodoroScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pomodoroModel = ref.watch(pomodoroProvider);
-    final notifier = ref.read(pomodoroProvider.notifier);
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => PomodoroNotifier(),
+      child: Consumer<PomodoroNotifier>(
+        builder: (context, notifier, child) {
+          final pomodoroModel = notifier.model;
+          final minutes = (pomodoroModel.timeLeft ~/ 60).toString().padLeft(
+            2,
+            '0',
+          );
+          final seconds = (pomodoroModel.timeLeft % 60).toString().padLeft(
+            2,
+            '0',
+          );
 
-    final minutes = (pomodoroModel.timeLeft ~/ 60).toString().padLeft(2, '0');
-    final seconds = (pomodoroModel.timeLeft % 60).toString().padLeft(2, '0');
-
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _getStateText(pomodoroModel.state),
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              '$minutes:$seconds',
-              style: const TextStyle(
-                fontSize: 72,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+          return Scaffold(
+            backgroundColor: Colors.grey[100],
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _getStateText(pomodoroModel.state),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    '$minutes:$seconds',
+                    style: const TextStyle(
+                      fontSize: 72,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  Text(
+                    'Completed work sessions: ${pomodoroModel.completedWorkSessions}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 30),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 2 / 3,
+                    child: Slider(
+                      value: notifier.selectedWorkDuration.toDouble(),
+                      min: 5,
+                      max: 60,
+                      divisions: 11,
+                      label: '${notifier.selectedWorkDuration} min',
+                      onChanged: (newValue) {
+                        notifier.updateDuration(newValue.toInt());
+                      },
+                      activeColor: Colors.red,
+                      inactiveColor: Colors.red.shade100,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: notifier.startStopTimer,
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 20,
+                      ),
+                    ),
+                    child: Text(notifier.isRunning ? 'Pause' : 'Start'),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: notifier.resetTimer,
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.grey,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 20,
+                      ),
+                    ),
+                    child: const Text('Reset'),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 30),
-            Text(
-              'Completed work sessions: ${pomodoroModel.completedWorkSessions}',
-              style: TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 30),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 2 / 3,
-              child: Slider(
-                value: notifier.selectedWorkDuration.toDouble(),
-                min: 5,
-                max: 60,
-                divisions: 11,
-                label: '${notifier.selectedWorkDuration} min',
-                onChanged: (newValue) {
-                  notifier.updateDuration(newValue.toInt());
-                },
-                activeColor: Colors.red,
-                inactiveColor: Colors.red.shade100,
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: notifier.startStopTimer,
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 20,
-                ),
-              ),
-              child: Text(notifier.isRunning ? 'Pause' : 'Start'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: notifier.resetTimer,
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.grey,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 20,
-                ),
-              ),
-              child: const Text('Reset'),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

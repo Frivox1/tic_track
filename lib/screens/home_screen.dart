@@ -1,49 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../widgets/task_card.dart';
-import '../services/hive_service.dart';
 import '../models/task.dart';
-import '../models/label.dart';
 import '../screens/task_detail_screen.dart';
-import 'package:hive_ce_flutter/hive_flutter.dart';
+import '../providers/app_state_provider.dart';
+import '../models/label.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 100,
-        forceMaterialTransparency: true,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 40.0),
-          child: const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Kanban Board',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
+    return Consumer<AppStateProvider>(
+      builder: (context, appState, child) {
+        return Scaffold(
+          appBar: AppBar(
+            toolbarHeight: 100,
+            forceMaterialTransparency: true,
+            title: Padding(
+              padding: const EdgeInsets.only(top: 40.0),
+              child: const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Kanban Board',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-      backgroundColor: Colors.grey[100],
-      body: Row(
-        children: [
-          _buildColumn('To Do', context),
-          _buildColumn('In Progress', context),
-          _buildColumn('Done', context),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _addTask(context),
-        backgroundColor: Colors.black,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+          backgroundColor: Colors.grey[100],
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final columnWidth =
+                  constraints.maxWidth / 3 > 200
+                      ? constraints.maxWidth / 3
+                      : 200.0;
+
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: columnWidth * 3,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildColumn('To Do', context, appState, columnWidth),
+                      _buildColumn(
+                        'In Progress',
+                        context,
+                        appState,
+                        columnWidth,
+                      ),
+                      _buildColumn('Done', context, appState, columnWidth),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => _addTask(context, appState),
+            backgroundColor: Colors.black,
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildColumn(String status, BuildContext context) {
-    return Expanded(
+  Widget _buildColumn(
+    String status,
+    BuildContext context,
+    AppStateProvider appState,
+    double width,
+  ) {
+    return SizedBox(
+      width: width,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -57,25 +88,24 @@ class HomeScreen extends StatelessWidget {
           Expanded(
             child: DragTarget<Task>(
               builder: (context, candidateData, rejectedData) {
-                return ValueListenableBuilder<Box<Task>>(
-                  valueListenable: HiveService.getTaskBox().listenable(),
-                  builder: (context, box, _) {
-                    final tasks =
-                        box.values
-                            .where((task) => task.status == status)
-                            .toList();
-                    return ListView.builder(
-                      itemCount: tasks.length,
-                      itemBuilder: (context, index) {
-                        return _buildDraggableTaskCard(tasks[index], context);
-                      },
+                final tasks =
+                    appState.tasks
+                        .where((task) => task.status == status)
+                        .toList();
+                return ListView.builder(
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) {
+                    return _buildDraggableTaskCard(
+                      tasks[index],
+                      context,
+                      appState,
                     );
                   },
                 );
               },
               onAccept: (Task task) {
                 task.status = status;
-                HiveService.updateTask(task);
+                appState.updateTask(task);
               },
             ),
           ),
@@ -84,7 +114,11 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDraggableTaskCard(Task task, BuildContext context) {
+  Widget _buildDraggableTaskCard(
+    Task task,
+    BuildContext context,
+    AppStateProvider appState,
+  ) {
     return Draggable<Task>(
       data: task,
       child: TaskCard(task: task, onTap: () => _openTaskDetails(context, task)),
@@ -103,14 +137,23 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  void _addTask(BuildContext context) {
+  void _addTask(BuildContext context, AppStateProvider appState) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        // Déclaration des variables en dehors du StatefulBuilder
         String title = '';
         String description = '';
         Label? selectedLabel;
         DateTime dueDate = DateTime.now();
+
+        // Déclaration des TextEditingControllers
+        TextEditingController titleController = TextEditingController(
+          text: title,
+        );
+        TextEditingController descriptionController = TextEditingController(
+          text: description,
+        );
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -123,83 +166,17 @@ class HomeScreen extends StatelessWidget {
                 height: MediaQuery.of(context).size.height * 0.7,
                 padding: const EdgeInsets.all(16.0),
                 child: Stack(
-                  // Utilisation d'un Stack
                   children: [
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Add a new task',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Title TextField
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Title',
-                              hintStyle: const TextStyle(color: Colors.black54),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.black,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            style: const TextStyle(color: Colors.black),
-                            onChanged: (value) => title = value,
-                          ),
-                        ),
+                        _buildTitleField(titleController, 'Title'),
                         const SizedBox(height: 14),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Description',
-                              hintStyle: const TextStyle(color: Colors.black54),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.black,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            style: const TextStyle(color: Colors.black),
-                            maxLines: 2,
-                            onChanged: (value) => description = value,
-                          ),
+                        _buildTextField(
+                          descriptionController,
+                          'Description',
+                          maxLines: 3,
                         ),
                         const SizedBox(height: 14),
                         Container(
@@ -211,11 +188,9 @@ class HomeScreen extends StatelessWidget {
                             color: Colors.grey[200],
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: ValueListenableBuilder<Box<Label>>(
-                            valueListenable:
-                                HiveService.getLabelBox().listenable(),
-                            builder: (context, box, _) {
-                              final labels = box.values.toList();
+                          child: Consumer<AppStateProvider>(
+                            builder: (context, appState, child) {
+                              final labels = appState.labels;
                               return DropdownButton<Label>(
                                 value: selectedLabel,
                                 hint: const Text(
@@ -254,7 +229,6 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 14),
-                        // Due date button
                         ElevatedButton(
                           child: Text(
                             'Due date: ${_formatDateTime(dueDate)}',
@@ -320,15 +294,16 @@ class HomeScreen extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () {
-                              if (title.isNotEmpty && selectedLabel != null) {
+                              if (titleController.text.isNotEmpty &&
+                                  selectedLabel != null) {
                                 final newTask = Task(
-                                  title: title,
-                                  description: description,
+                                  title: titleController.text,
+                                  description: descriptionController.text,
                                   label: selectedLabel!.name,
                                   dueDate: dueDate,
                                   status: 'To Do',
                                 );
-                                HiveService.addTask(newTask);
+                                appState.addTask(newTask);
                                 Navigator.of(context).pop();
                               }
                             },
@@ -350,6 +325,86 @@ class HomeScreen extends StatelessWidget {
           },
         );
       },
+    );
+  }
+
+  Widget _buildTitleField(TextEditingController controller, String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          style: const TextStyle(fontSize: 16),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey[200],
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 14,
+              horizontal: 16,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    int maxLines = 3,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          style: const TextStyle(fontSize: 16),
+          maxLength: 80,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey[200],
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 14,
+              horizontal: 16,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
