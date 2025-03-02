@@ -30,6 +30,12 @@ class SideMenu extends StatelessWidget {
                 'Calendar',
               ),
               _buildListTile(context, 4, Icons.timer_outlined, 'Pomodoro'),
+              _buildListTile(
+                context,
+                5,
+                Icons.keyboard_alt_outlined,
+                'Warm-up',
+              ),
             ],
           ),
         );
