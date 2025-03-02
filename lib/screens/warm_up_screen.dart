@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:flutter/services.dart';
 
 class TypingGamePage extends StatefulWidget {
@@ -90,7 +90,7 @@ class _TypingGamePageState extends State<TypingGamePage> {
     for (int i = 0; i < textToType.length; i++) {
       Color color = Colors.grey;
       if (i < userInput.length) {
-        color = (userInput[i] == textToType[i]) ? Colors.black : Colors.red;
+        color = (userInput[i] == textToType[i]) ? Colors.green : Colors.red;
       }
       spans.add(
         TextSpan(
@@ -131,11 +131,13 @@ class _TypingGamePageState extends State<TypingGamePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                // Affichage du texte à taper
                 RichText(text: TextSpan(children: buildTextSpans())),
                 const SizedBox(height: 20),
                 if (gameFinished)
                   Column(
                     children: [
+                      // Affichage des résultats
                       Text(
                         'Vitesse: ${wpm.toStringAsFixed(2)} WPM',
                         style: const TextStyle(
