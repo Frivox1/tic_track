@@ -137,7 +137,6 @@ class _TypingGamePageState extends State<TypingGamePage> {
                 if (gameFinished)
                   Column(
                     children: [
-                      // Affichage des résultats
                       Text(
                         'Vitesse: ${wpm.toStringAsFixed(2)} WPM',
                         style: const TextStyle(

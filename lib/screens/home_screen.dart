@@ -5,6 +5,7 @@ import '../models/task.dart';
 import '../screens/task_detail_screen.dart';
 import '../providers/app_state_provider.dart';
 import '../models/label.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -31,28 +32,23 @@ class HomeScreen extends StatelessWidget {
           backgroundColor: Colors.grey[100],
           body: LayoutBuilder(
             builder: (context, constraints) {
-              final columnWidth =
-                  constraints.maxWidth / 3 > 200
-                      ? constraints.maxWidth / 3
-                      : 200.0;
+              const double minColumnWidth = 300;
+              const int columnCount = 3;
+              final double availableWidth = constraints.maxWidth;
+              final double columnWidth =
+                  availableWidth / columnCount > minColumnWidth
+                      ? availableWidth / columnCount
+                      : minColumnWidth;
 
               return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  width: columnWidth * 3,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildColumn('To Do', context, appState, columnWidth),
-                      _buildColumn(
-                        'In Progress',
-                        context,
-                        appState,
-                        columnWidth,
-                      ),
-                      _buildColumn('Done', context, appState, columnWidth),
-                    ],
-                  ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildColumn('To Do', context, appState, columnWidth),
+                    _buildColumn('In Progress', context, appState, columnWidth),
+                    _buildColumn('Done', context, appState, columnWidth),
+                  ],
                 ),
               );
             },
@@ -92,15 +88,28 @@ class HomeScreen extends StatelessWidget {
                     appState.tasks
                         .where((task) => task.status == status)
                         .toList();
-                return ListView.builder(
-                  itemCount: tasks.length,
-                  itemBuilder: (context, index) {
-                    return _buildDraggableTaskCard(
-                      tasks[index],
-                      context,
-                      appState,
-                    );
-                  },
+
+                return Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color:
+                          candidateData.isNotEmpty
+                              ? Colors.grey.withOpacity(0.2)
+                              : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListView.builder(
+                      itemCount: tasks.length,
+                      itemBuilder: (context, index) {
+                        return _buildDraggableTaskCard(
+                          tasks[index],
+                          context,
+                          appState,
+                        );
+                      },
+                    ),
+                  ),
                 );
               },
               onAccept: (Task task) {
@@ -121,12 +130,18 @@ class HomeScreen extends StatelessWidget {
   ) {
     return Draggable<Task>(
       data: task,
-      child: TaskCard(task: task, onTap: () => _openTaskDetails(context, task)),
-      feedback: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.25,
-        child: Material(elevation: 4.0, child: TaskCard(task: task)),
+      feedback: Material(
+        color: Colors.transparent,
+        child: Opacity(
+          opacity: 0.8,
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.3,
+            child: TaskCard(task: task),
+          ),
+        ),
       ),
       childWhenDragging: Opacity(opacity: 0.5, child: TaskCard(task: task)),
+      child: TaskCard(task: task, onTap: () => _openTaskDetails(context, task)),
     );
   }
 
@@ -141,13 +156,11 @@ class HomeScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        // Déclaration des variables en dehors du StatefulBuilder
         String title = '';
         String description = '';
         Label? selectedLabel;
         DateTime dueDate = DateTime.now();
 
-        // Déclaration des TextEditingControllers
         TextEditingController titleController = TextEditingController(
           text: title,
         );
@@ -162,124 +175,116 @@ class HomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Container(
-                width: MediaQuery.of(context).size.height * 0.7,
-                height: MediaQuery.of(context).size.height * 0.7,
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.8,
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                ),
                 padding: const EdgeInsets.all(16.0),
-                child: Stack(
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildTitleField(titleController, 'Title'),
-                        const SizedBox(height: 14),
-                        _buildTextField(
-                          descriptionController,
-                          'Description',
-                          maxLines: 3,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTitleField(titleController, 'Title'),
+                      const SizedBox(height: 14),
+                      _buildTextField(
+                        descriptionController,
+                        'Description',
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 14),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
                         ),
-                        const SizedBox(height: 14),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Consumer<AppStateProvider>(
-                            builder: (context, appState, child) {
-                              final labels = appState.labels;
-                              return DropdownButton<Label>(
-                                value: selectedLabel,
-                                hint: const Text(
-                                  'Choose a label',
-                                  style: TextStyle(color: Colors.black54),
-                                ),
-                                isExpanded: true,
-                                underline: SizedBox(),
-                                onChanged: (Label? value) {
-                                  setState(() {
-                                    selectedLabel = value;
-                                  });
-                                },
-                                items:
-                                    labels.map<DropdownMenuItem<Label>>((
-                                      Label label,
-                                    ) {
-                                      return DropdownMenuItem<Label>(
-                                        value: label,
-                                        child: Row(
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundColor: Color(
-                                                label.color,
-                                              ),
-                                              radius: 6,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(label.name),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                              );
-                            },
-                          ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const SizedBox(height: 14),
-                        ElevatedButton(
-                          child: Text(
-                            'Due date: ${_formatDateTime(dueDate)}',
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey[200],
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                          ),
-                          onPressed: () async {
-                            final DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: dueDate,
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime(2026),
-                            );
-                            if (pickedDate != null) {
-                              final TimeOfDay? pickedTime =
-                                  await showTimePicker(
-                                    context: context,
-                                    initialTime: TimeOfDay.fromDateTime(
-                                      dueDate,
-                                    ),
-                                  );
-                              if (pickedTime != null) {
+                        child: Consumer<AppStateProvider>(
+                          builder: (context, appState, child) {
+                            final labels = appState.labels;
+                            return DropdownButton<Label>(
+                              value: selectedLabel,
+                              hint: const Text(
+                                'Choose a label',
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                              isExpanded: true,
+                              underline: SizedBox(),
+                              onChanged: (Label? value) {
                                 setState(() {
-                                  dueDate = DateTime(
-                                    pickedDate.year,
-                                    pickedDate.month,
-                                    pickedDate.day,
-                                    pickedTime.hour,
-                                    pickedTime.minute,
-                                  );
+                                  selectedLabel = value;
                                 });
-                              }
-                            }
+                              },
+                              items:
+                                  labels.map<DropdownMenuItem<Label>>((
+                                    Label label,
+                                  ) {
+                                    return DropdownMenuItem<Label>(
+                                      value: label,
+                                      child: Row(
+                                        children: [
+                                          CircleAvatar(
+                                            backgroundColor: Color(label.color),
+                                            radius: 6,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(label.name),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                            );
                           },
                         ),
-                      ],
-                    ),
-                    Positioned(
-                      bottom: 10,
-                      right: 20,
-                      child: Row(
+                      ),
+                      const SizedBox(height: 14),
+                      ElevatedButton(
+                        child: Text(
+                          'Due date: ${_formatDateTime(dueDate)}',
+                          style: const TextStyle(color: Colors.black),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[200],
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                        onPressed: () async {
+                          final DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: dueDate,
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2026),
+                          );
+                          if (pickedDate != null) {
+                            final TimeOfDay? pickedTime = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.fromDateTime(dueDate),
+                            );
+                            if (pickedTime != null) {
+                              setState(() {
+                                dueDate = DateTime(
+                                  pickedDate.year,
+                                  pickedDate.month,
+                                  pickedDate.day,
+                                  pickedTime.hour,
+                                  pickedTime.minute,
+                                );
+                              });
+                            }
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           TextButton(
@@ -317,8 +322,8 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
@@ -340,6 +345,7 @@ class HomeScreen extends StatelessWidget {
         TextField(
           controller: controller,
           style: const TextStyle(fontSize: 16),
+          maxLength: 12,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey[200],
@@ -380,9 +386,8 @@ class HomeScreen extends StatelessWidget {
         const SizedBox(height: 6),
         TextField(
           controller: controller,
-          maxLines: maxLines,
           style: const TextStyle(fontSize: 16),
-          maxLength: 80,
+          maxLines: maxLines,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey[200],
@@ -409,6 +414,6 @@ class HomeScreen extends StatelessWidget {
   }
 
   String _formatDateTime(DateTime dateTime) {
-    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
   }
 }
