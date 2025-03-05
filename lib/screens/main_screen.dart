@@ -7,7 +7,7 @@ import 'label_screen.dart';
 import '../widgets/side_menu.dart';
 import 'pomodoro_screen.dart';
 import '../providers/app_state_provider.dart';
-import 'warm_up_screen.dart';
+import 'still_dev_screen.dart';
 
 class MainScreen extends StatelessWidget {
   MainScreen({Key? key}) : super(key: key);
@@ -18,7 +18,7 @@ class MainScreen extends StatelessWidget {
     LabelScreen(),
     CalendarScreen(),
     PomodoroScreen(),
-    TypingGamePage(),
+    StillDevScreen(),
   ];
 
   @override

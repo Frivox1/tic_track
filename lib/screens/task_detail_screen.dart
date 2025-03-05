@@ -4,6 +4,7 @@ import '../models/task.dart';
 import '../models/label.dart';
 import '../providers/app_state_provider.dart';
 import 'package:intl/intl.dart';
+import '../services/hive_service.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final Task task;
@@ -297,19 +298,32 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Widget _buildStatusChip() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      decoration: BoxDecoration(
-        color: _getStatusColor(widget.task.status),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        widget.task.status,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          decoration: BoxDecoration(
+            color: _getStatusColor(widget.task.status),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            widget.task.status,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
-      ),
+        Text(
+          _daysRemaining(),
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 
@@ -385,14 +399,43 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
-  void _saveTask(AppStateProvider appState) {
-    widget.task
-      ..title = _titleController.text
-      ..description = _descriptionController.text
-      ..label = _selectedLabel?.name ?? ''
-      ..dueDate = _dueDate;
-    appState.updateTask(widget.task);
-    Navigator.pop(context);
+  String _daysRemaining() {
+    final now = DateTime.now();
+    final difference = _dueDate.difference(now).inDays;
+
+    if (difference > 0) {
+      return '${difference + 1} days remaining';
+    } else if (difference == 0) {
+      return 'Today';
+    } else {
+      return 'Overdue by ${difference.abs()} days';
+    }
+  }
+
+  void _saveTask(AppStateProvider appState) async {
+    // Récupérer la clé de la tâche
+    var taskKey = widget.task.key;
+
+    // Récupérer la tâche depuis Hive
+    Task? taskToUpdate = HiveService.getTaskBox().get(taskKey);
+
+    if (taskToUpdate != null) {
+      // Mettre à jour les propriétés
+      taskToUpdate.title = _titleController.text;
+      taskToUpdate.description = _descriptionController.text;
+      taskToUpdate.label = _selectedLabel?.name ?? '';
+      taskToUpdate.dueDate = _dueDate;
+
+      // Sauvegarder les modifications dans Hive
+      await taskToUpdate.save();
+
+      // Notifier les listeners pour rafraîchir l'UI
+      appState.refreshData();
+      Navigator.pop(context);
+    } else {
+      // Gérer le cas où la tâche n'est pas trouvée
+      print("Tâche non trouvée dans Hive !");
+    }
   }
 
   void _confirmDeleteTask(AppStateProvider appState) {

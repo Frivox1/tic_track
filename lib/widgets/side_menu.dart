@@ -15,14 +15,14 @@ class SideMenu extends StatelessWidget {
             padding: EdgeInsets.zero,
             children: [
               SizedBox(height: 45),
-              _buildListTile(context, 0, Icons.view_agenda_outlined, 'Kanban'),
-              _buildListTile(context, 1, Icons.category_outlined, 'Categories'),
+              _buildListTile(context, 0, Icons.view_column_outlined, 'Kanban'),
               _buildListTile(
                 context,
-                2,
-                Icons.label_important_outline_rounded,
-                'Labels',
+                1,
+                Icons.folder_open_outlined,
+                'Categories',
               ),
+              _buildListTile(context, 2, Icons.local_offer_outlined, 'Labels'),
               _buildListTile(
                 context,
                 3,
