@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tick_track/screens/calendar_screen.dart';
+import 'package:tic_track/screens/calendar_screen.dart';
 import 'category_screen.dart';
 import 'home_screen.dart';
 import 'label_screen.dart';
