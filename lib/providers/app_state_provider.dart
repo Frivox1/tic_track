@@ -61,7 +61,12 @@ class AppStateProvider with ChangeNotifier {
     refreshData();
   }
 
-  Future<void> updateTask(Task task) async {
+  Future<void> updateTask(Task task, {Label? newLabel}) async {
+    if (newLabel != null) {
+      task.label = newLabel.name;
+      task.save();
+    }
+
     await HiveService.updateTask(task);
     refreshData();
   }

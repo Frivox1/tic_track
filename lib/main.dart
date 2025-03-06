@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tick_track/screens/main_screen.dart';
+import 'package:tic_track/screens/main_screen.dart';
 import 'services/hive_service.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:provider/provider.dart';

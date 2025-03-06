@@ -205,44 +205,67 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
           ),
-          child: DropdownButtonFormField<Label>(
-            value: _selectedLabel,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.black, width: 2),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              menuTheme: MenuThemeData(
+                style: MenuStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.grey[100]),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        12,
+                      ), // ✅ Ajout du BorderRadius
+                    ),
+                  ),
+                ),
               ),
             ),
-            onChanged: (Label? newValue) {
-              setState(() {
-                _selectedLabel = newValue;
-              });
-            },
-            items:
-                labels.map((Label label) {
-                  return DropdownMenuItem<Label>(
-                    value: label,
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: Color(label.color),
-                          radius: 6,
-                        ),
-                        SizedBox(width: 8),
-                        Text(label.name),
-                      ],
-                    ),
-                  );
-                }).toList(),
+            child: DropdownButtonFormField<Label>(
+              value: labels.contains(_selectedLabel) ? _selectedLabel : null,
+              dropdownColor: Colors.grey[100],
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2),
+                ),
+              ),
+              onChanged: (Label? newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    _selectedLabel = newValue;
+                  });
+                  appState.updateTask(widget.task, newLabel: newValue);
+                }
+              },
+              items:
+                  labels.map((Label label) {
+                    return DropdownMenuItem<Label>(
+                      value: label,
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Color(label.color),
+                            radius: 6,
+                          ),
+                          SizedBox(width: 8),
+                          Text(label.name),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+            ),
           ),
         ),
       ],
@@ -297,19 +320,32 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Widget _buildStatusChip() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      decoration: BoxDecoration(
-        color: _getStatusColor(widget.task.status),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        widget.task.status,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          decoration: BoxDecoration(
+            color: _getStatusColor(widget.task.status),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            widget.task.status,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
-      ),
+        Text(
+          _daysRemaining(),
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 
@@ -385,14 +421,29 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
+  String _daysRemaining() {
+    final now = DateTime.now();
+    final difference = _dueDate.difference(now).inDays;
+
+    if (difference > 0) {
+      return '${difference + 1} days remaining';
+    } else if (difference == 0) {
+      return 'Today';
+    } else {
+      return 'Overdue by ${difference.abs()} days';
+    }
+  }
+
   void _saveTask(AppStateProvider appState) {
     widget.task
       ..title = _titleController.text
       ..description = _descriptionController.text
-      ..label = _selectedLabel?.name ?? ''
+      ..label = _selectedLabel?.name ?? 'Unknown'
       ..dueDate = _dueDate;
-    appState.updateTask(widget.task);
-    Navigator.pop(context);
+    appState.updateTask(widget.task).then((_) {
+      setState(() {});
+      Navigator.pop(context);
+    });
   }
 
   void _confirmDeleteTask(AppStateProvider appState) {
