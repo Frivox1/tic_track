@@ -205,37 +205,44 @@ class HomeScreen extends StatelessWidget {
                         child: Consumer<AppStateProvider>(
                           builder: (context, appState, child) {
                             final labels = appState.labels;
-                            return DropdownButton<Label>(
-                              value: selectedLabel,
-                              hint: const Text(
-                                'Choose a label',
-                                style: TextStyle(color: Colors.black54),
+                            return Theme(
+                              data: Theme.of(
+                                context,
+                              ).copyWith(canvasColor: Colors.grey[100]),
+                              child: DropdownButton<Label>(
+                                value: selectedLabel,
+                                hint: const Text(
+                                  'Choose a label',
+                                  style: TextStyle(color: Colors.black54),
+                                ),
+                                isExpanded: true,
+                                underline: SizedBox(),
+                                onChanged: (Label? value) {
+                                  setState(() {
+                                    selectedLabel = value;
+                                  });
+                                },
+                                items:
+                                    labels.map<DropdownMenuItem<Label>>((
+                                      Label label,
+                                    ) {
+                                      return DropdownMenuItem<Label>(
+                                        value: label,
+                                        child: Row(
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: Color(
+                                                label.color,
+                                              ),
+                                              radius: 6,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(label.name),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
                               ),
-                              isExpanded: true,
-                              underline: SizedBox(),
-                              onChanged: (Label? value) {
-                                setState(() {
-                                  selectedLabel = value;
-                                });
-                              },
-                              items:
-                                  labels.map<DropdownMenuItem<Label>>((
-                                    Label label,
-                                  ) {
-                                    return DropdownMenuItem<Label>(
-                                      value: label,
-                                      child: Row(
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundColor: Color(label.color),
-                                            radius: 6,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(label.name),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
                             );
                           },
                         ),
@@ -388,6 +395,7 @@ class HomeScreen extends StatelessWidget {
           controller: controller,
           style: const TextStyle(fontSize: 16),
           maxLines: maxLines,
+          maxLength: 80,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey[200],

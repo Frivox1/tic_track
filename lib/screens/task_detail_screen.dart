@@ -4,7 +4,6 @@ import '../models/task.dart';
 import '../models/label.dart';
 import '../providers/app_state_provider.dart';
 import 'package:intl/intl.dart';
-import '../services/hive_service.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final Task task;
@@ -206,44 +205,67 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
           ),
-          child: DropdownButtonFormField<Label>(
-            value: _selectedLabel,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.black, width: 2),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              menuTheme: MenuThemeData(
+                style: MenuStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.grey[100]),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        12,
+                      ), // ✅ Ajout du BorderRadius
+                    ),
+                  ),
+                ),
               ),
             ),
-            onChanged: (Label? newValue) {
-              setState(() {
-                _selectedLabel = newValue;
-              });
-            },
-            items:
-                labels.map((Label label) {
-                  return DropdownMenuItem<Label>(
-                    value: label,
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: Color(label.color),
-                          radius: 6,
-                        ),
-                        SizedBox(width: 8),
-                        Text(label.name),
-                      ],
-                    ),
-                  );
-                }).toList(),
+            child: DropdownButtonFormField<Label>(
+              value: labels.contains(_selectedLabel) ? _selectedLabel : null,
+              dropdownColor: Colors.grey[100],
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2),
+                ),
+              ),
+              onChanged: (Label? newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    _selectedLabel = newValue;
+                  });
+                  appState.updateTask(widget.task, newLabel: newValue);
+                }
+              },
+              items:
+                  labels.map((Label label) {
+                    return DropdownMenuItem<Label>(
+                      value: label,
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Color(label.color),
+                            radius: 6,
+                          ),
+                          SizedBox(width: 8),
+                          Text(label.name),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+            ),
           ),
         ),
       ],
@@ -412,30 +434,16 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
-  void _saveTask(AppStateProvider appState) async {
-    // Récupérer la clé de la tâche
-    var taskKey = widget.task.key;
-
-    // Récupérer la tâche depuis Hive
-    Task? taskToUpdate = HiveService.getTaskBox().get(taskKey);
-
-    if (taskToUpdate != null) {
-      // Mettre à jour les propriétés
-      taskToUpdate.title = _titleController.text;
-      taskToUpdate.description = _descriptionController.text;
-      taskToUpdate.label = _selectedLabel?.name ?? '';
-      taskToUpdate.dueDate = _dueDate;
-
-      // Sauvegarder les modifications dans Hive
-      await taskToUpdate.save();
-
-      // Notifier les listeners pour rafraîchir l'UI
-      appState.refreshData();
+  void _saveTask(AppStateProvider appState) {
+    widget.task
+      ..title = _titleController.text
+      ..description = _descriptionController.text
+      ..label = _selectedLabel?.name ?? 'Unknown'
+      ..dueDate = _dueDate;
+    appState.updateTask(widget.task).then((_) {
+      setState(() {});
       Navigator.pop(context);
-    } else {
-      // Gérer le cas où la tâche n'est pas trouvée
-      print("Tâche non trouvée dans Hive !");
-    }
+    });
   }
 
   void _confirmDeleteTask(AppStateProvider appState) {
