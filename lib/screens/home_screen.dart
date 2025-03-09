@@ -75,10 +75,32 @@ class HomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 16.0, top: 40.0, bottom: 8.0),
-            child: Text(
-              status,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              top: 40.0,
+              bottom: 8.0,
+              right: 16.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  status,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+
+                if (status == 'Done')
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 22),
+                    onPressed: () => _sureToDeleteAllDoneTasks(context),
+                  )
+                else
+                  // Réserve l'espace du bouton pour éviter le décalage des tâches
+                  const SizedBox(height: 40),
+              ],
             ),
           ),
           Expanded(
@@ -150,6 +172,42 @@ class HomeScreen extends StatelessWidget {
       context,
       MaterialPageRoute(builder: (context) => TaskDetailScreen(task: task)),
     );
+  }
+
+  void _sureToDeleteAllDoneTasks(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete all done tasks?'),
+          content: const Text('This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final appState = Provider.of<AppStateProvider>(
+                  context,
+                  listen: false,
+                );
+                _clearDoneTasks(appState);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _clearDoneTasks(AppStateProvider appState) {
+    final doneTasks = appState.tasks.where((task) => task.status == 'Done');
+    for (final task in doneTasks) {
+      appState.deleteTask(task);
+    }
   }
 
   void _addTask(BuildContext context, AppStateProvider appState) {
