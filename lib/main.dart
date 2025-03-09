@@ -13,7 +13,7 @@ void main() async {
 
   // Initialisation des notifications locales
   await localNotifier.setup(
-    appName: 'Tick Track',
+    appName: 'Tic Track',
     shortcutPolicy: ShortcutPolicy.requireCreate,
   );
 
@@ -46,45 +46,126 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
+  static ThemeData lightTheme() {
+    return ThemeData(
+      fontFamily: 'Raleway',
+      brightness: Brightness.light,
+      primaryColor: Colors.blue,
+      scaffoldBackgroundColor: Colors.grey[100],
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 100,
+        titleTextStyle: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 40,
+        ),
+      ),
+      cardTheme: CardTheme(
+        color: Colors.grey[50],
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      textTheme: TextTheme(
+        titleLarge: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+        bodyMedium: TextStyle(color: Colors.grey[900]),
+        bodySmall: TextStyle(color: Colors.grey),
+      ),
+      iconTheme: IconThemeData(color: Colors.grey, size: 16),
+      chipTheme: ChipThemeData(
+        backgroundColor: Colors.transparent,
+        disabledColor: Colors.transparent,
+        selectedColor: Colors.transparent,
+        secondarySelectedColor: Colors.transparent,
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        labelStyle: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+      ),
+      drawerTheme: DrawerThemeData(backgroundColor: Colors.white),
+      listTileTheme: ListTileThemeData(
+        iconColor: Colors.black,
+        textColor: Colors.black87,
+        selectedColor:
+            Colors.blue, // Couleur du texte et de l'icône quand sélectionné
+        selectedTileColor: Colors.blue.withOpacity(
+          0.1,
+        ), // Couleur de fond quand sélectionné
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  // Thème Sombre
+  static ThemeData darkTheme() {
+    return ThemeData(
+      fontFamily: 'Raleway',
+      brightness: Brightness.dark,
+      primaryColor: Colors.white,
+      scaffoldBackgroundColor: Color(0xFF303030),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 100,
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 40,
+        ),
+      ),
+      cardTheme: CardTheme(
+        color: Color(0xFF424242),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      textTheme: TextTheme(
+        titleLarge: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+        bodyMedium: TextStyle(color: Colors.grey[300]),
+        bodySmall: TextStyle(color: Colors.grey[400]),
+      ),
+      iconTheme: IconThemeData(color: Colors.grey[400], size: 16),
+      chipTheme: ChipThemeData(
+        backgroundColor: Colors.transparent,
+        disabledColor: Colors.transparent,
+        selectedColor: Colors.transparent,
+        secondarySelectedColor: Colors.transparent,
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        labelStyle: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+      ),
+      drawerTheme: DrawerThemeData(backgroundColor: Color(0xFF303030)),
+      listTileTheme: ListTileThemeData(
+        iconColor: Colors.white70,
+        textColor: Colors.white,
+        selectedColor: Colors.red,
+        selectedTileColor: Colors.tealAccent.withOpacity(0.1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Kanban Task Manager',
-      theme: ThemeData(
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.grey[100],
-          elevation: 0,
-          iconTheme: IconThemeData(color: Colors.black),
-        ),
-        scaffoldBackgroundColor: Colors.grey[100],
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        fontFamily: 'Raleway',
-        dialogTheme: DialogTheme(backgroundColor: Colors.grey[100]),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(foregroundColor: Colors.black),
-        ),
-        inputDecorationTheme: const InputDecorationTheme(
-          hintStyle: TextStyle(color: Colors.black),
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.black),
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.black),
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey[300],
-            foregroundColor: Colors.black,
-          ),
-        ),
-        dropdownMenuTheme: DropdownMenuThemeData(
-          menuStyle: MenuStyle(
-            backgroundColor: MaterialStateProperty.all(Colors.grey[200]),
-          ),
-        ),
-      ),
+      title: 'Tic Track',
+      theme: lightTheme(),
+      darkTheme: darkTheme(),
+      themeMode: ThemeMode.system, // Utilise le mode du système (clair/sombre)
       home: MainScreen(),
     );
   }

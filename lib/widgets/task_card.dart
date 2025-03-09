@@ -28,7 +28,7 @@ class _TaskCardState extends State<TaskCard> {
         duration: Duration(milliseconds: 200),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: _isHovered ? Colors.grey[200] : Colors.grey[50],
+          // color: _isHovered ? Colors.grey[200] : Colors.grey[50],
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -56,10 +56,7 @@ class _TaskCardState extends State<TaskCard> {
                       Expanded(
                         child: Text(
                           widget.task.title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ),
                       Container(
@@ -88,7 +85,7 @@ class _TaskCardState extends State<TaskCard> {
                         : widget.task.description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.grey[900]),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -106,7 +103,7 @@ class _TaskCardState extends State<TaskCard> {
                             DateFormat(
                               'dd/MM/yyyy HH:mm',
                             ).format(widget.task.dueDate),
-                            style: const TextStyle(color: Colors.grey),
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                       ),

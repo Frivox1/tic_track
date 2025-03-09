@@ -11,7 +11,6 @@ class SideMenu extends StatelessWidget {
     return Consumer<AppStateProvider>(
       builder: (context, appState, child) {
         return Drawer(
-          backgroundColor: Colors.grey[100],
           child: Column(
             children: [
               // Liste des items du menu
@@ -77,7 +76,7 @@ class SideMenu extends StatelessWidget {
     final appState = Provider.of<AppStateProvider>(context, listen: false);
     return ListTile(
       leading: Icon(icon, color: Colors.black),
-      title: Text(title, style: TextStyle(color: Colors.black)),
+      title: Text(title),
       selected: appState.selectedIndex == index,
       selectedTileColor: Colors.black.withOpacity(0.1),
       onTap: () => appState.setSelectedIndex(index),
@@ -86,8 +85,8 @@ class SideMenu extends StatelessWidget {
 
   Widget _buildContactUsTile(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.email_outlined, color: Colors.black),
-      title: Text('Get in touch', style: TextStyle(color: Colors.black)),
+      leading: Icon(Icons.email_outlined),
+      title: Text('Get in touch'),
       onTap: () {
         _launchEmail();
       },
