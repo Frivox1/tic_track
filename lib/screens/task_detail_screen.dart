@@ -107,7 +107,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           controller: controller,
           maxLines: maxLines,
           style: const TextStyle(fontSize: 16),
-          maxLength: 12,
+          maxLength: 22,
           decoration: InputDecoration(
             filled: true,
             fillColor: Theme.of(context).cardTheme.color,
@@ -125,7 +125,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.black, width: 2),
             ),
           ),
         ),
@@ -150,7 +149,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           controller: controller,
           maxLines: maxLines,
           style: const TextStyle(fontSize: 16),
-          maxLength: 80,
+          maxLength: 100,
           decoration: InputDecoration(
             filled: true,
             fillColor: Theme.of(context).cardTheme.color,
@@ -168,7 +167,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.black, width: 2),
             ),
           ),
         ),
@@ -216,7 +214,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             ),
             child: DropdownButtonFormField<Label>(
               value: labels.contains(_selectedLabel) ? _selectedLabel : null,
-              dropdownColor: Colors.grey[100],
+              dropdownColor: Theme.of(context).cardTheme.color,
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 16,

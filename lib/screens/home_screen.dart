@@ -200,7 +200,7 @@ class HomeScreen extends StatelessWidget {
                 Navigator.of(context).pop();
               },
               child: Text(
-                'Add',
+                'Delete',
                 style: TextStyle(
                   fontSize: 20,
                   color: Theme.of(context).textTheme.bodyMedium!.color,
@@ -239,27 +239,27 @@ class HomeScreen extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
               child: Container(
-                color: Theme.of(context).dialogTheme.backgroundColor,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardTheme.color,
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.8,
                   maxHeight: MediaQuery.of(context).size.height * 0.8,
                 ),
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(32.0),
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildTitleField(titleController, 'Title'),
+                      _buildTitleField(context, titleController),
                       const SizedBox(height: 14),
                       _buildTextField(
+                        context,
                         descriptionController,
                         'Description',
-                        maxLines: 3,
                       ),
                       const SizedBox(height: 14),
                       Container(
@@ -329,9 +329,9 @@ class HomeScreen extends StatelessWidget {
                       ElevatedButton(
                         child: Text('Due date: ${_formatDateTime(dueDate)}'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).cardColor,
+                          backgroundColor: Theme.of(context).primaryColor,
                           foregroundColor:
-                              Theme.of(context).textTheme.bodyMedium!.color,
+                              Theme.of(context).colorScheme.onPrimary,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -373,9 +373,15 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            child: const Text(
+                            child: Text(
                               'Cancel',
-                              style: TextStyle(fontSize: 20),
+                              style: TextStyle(
+                                fontSize: 20,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium!.color,
+                              ),
                             ),
                           ),
                           TextButton(
@@ -393,9 +399,15 @@ class HomeScreen extends StatelessWidget {
                                 Navigator.of(context).pop();
                               }
                             },
-                            child: const Text(
+                            child: Text(
                               'Add',
-                              style: TextStyle(fontSize: 20),
+                              style: TextStyle(
+                                fontSize: 20,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium!.color,
+                              ),
                             ),
                           ),
                         ],
@@ -411,29 +423,54 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleField(TextEditingController controller, String label) {
+  Widget _buildTitleField(
+    BuildContext context,
+    TextEditingController controller,
+  ) {
     return TextField(
       controller: controller,
+      cursorColor: Colors.grey,
+      maxLength: 22,
       decoration: InputDecoration(
-        labelText: label,
-        hintText: label,
-        border: OutlineInputBorder(),
+        labelText: 'Titre',
+        labelStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyMedium!.color,
+        ),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).textTheme.bodyMedium!.color!,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).primaryColor),
+        ),
       ),
     );
   }
 
   Widget _buildTextField(
+    BuildContext context,
     TextEditingController controller,
-    String label, {
-    int maxLines = 1,
-  }) {
+    String label,
+  ) {
     return TextField(
       controller: controller,
-      maxLines: maxLines,
+      cursorColor: Colors.grey,
+      maxLength: 100,
+      maxLines: 2,
       decoration: InputDecoration(
-        labelText: label,
-        hintText: label,
-        border: OutlineInputBorder(),
+        labelText: 'Description',
+        labelStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyMedium!.color,
+        ),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).textTheme.bodyMedium!.color!,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).primaryColor),
+        ),
       ),
     );
   }
