@@ -182,7 +182,13 @@ class HomeScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Theme.of(context).textTheme.bodyMedium!.color,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -193,7 +199,13 @@ class HomeScreen extends StatelessWidget {
                 _clearDoneTasks(appState);
                 Navigator.of(context).pop();
               },
-              child: const Text('Delete'),
+              child: Text(
+                'Add',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Theme.of(context).textTheme.bodyMedium!.color,
+                ),
+              ),
             ),
           ],
         );
@@ -231,6 +243,7 @@ class HomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Container(
+                color: Theme.of(context).dialogTheme.backgroundColor,
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.8,
                   maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -255,21 +268,30 @@ class HomeScreen extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.grey[200],
+                          color: Theme.of(context).cardTheme.color,
                           borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color:
+                                Theme.of(context).textTheme.bodyMedium!.color!,
+                          ),
                         ),
                         child: Consumer<AppStateProvider>(
                           builder: (context, appState, child) {
                             final labels = appState.labels;
                             return Theme(
-                              data: Theme.of(
-                                context,
-                              ).copyWith(canvasColor: Colors.grey[100]),
+                              data: Theme.of(context).copyWith(
+                                canvasColor: Theme.of(context).cardColor,
+                              ),
                               child: DropdownButton<Label>(
                                 value: selectedLabel,
-                                hint: const Text(
+                                hint: Text(
                                   'Choose a label',
-                                  style: TextStyle(color: Colors.black54),
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium!.color,
+                                  ),
                                 ),
                                 isExpanded: true,
                                 underline: SizedBox(),
@@ -305,12 +327,11 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       ElevatedButton(
-                        child: Text(
-                          'Due date: ${_formatDateTime(dueDate)}',
-                          style: const TextStyle(color: Colors.black),
-                        ),
+                        child: Text('Due date: ${_formatDateTime(dueDate)}'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[200],
+                          backgroundColor: Theme.of(context).cardColor,
+                          foregroundColor:
+                              Theme.of(context).textTheme.bodyMedium!.color,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -354,10 +375,7 @@ class HomeScreen extends StatelessWidget {
                             onPressed: () => Navigator.of(context).pop(),
                             child: const Text(
                               'Cancel',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                              ),
+                              style: TextStyle(fontSize: 20),
                             ),
                           ),
                           TextButton(
@@ -377,10 +395,7 @@ class HomeScreen extends StatelessWidget {
                             },
                             child: const Text(
                               'Add',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                              ),
+                              style: TextStyle(fontSize: 20),
                             ),
                           ),
                         ],

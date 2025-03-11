@@ -37,22 +37,18 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         _selectedLabel = appState.getLabelByName(widget.task.label);
 
         return Scaffold(
-          backgroundColor: Colors.white,
           appBar: AppBar(
             toolbarHeight: 120,
             title: const Text(
               'Task Details',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             centerTitle: true,
             elevation: 0,
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            iconTheme: Theme.of(context).iconTheme,
             forceMaterialTransparency: true,
-            surfaceTintColor: Colors.white,
+            surfaceTintColor: Theme.of(context).scaffoldBackgroundColor,
           ),
           body: SingleChildScrollView(
             child: Center(
@@ -114,7 +110,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           maxLength: 12,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: Theme.of(context).cardTheme.color,
             contentPadding: const EdgeInsets.symmetric(
               vertical: 14,
               horizontal: 16,
@@ -157,7 +153,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           maxLength: 80,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: Theme.of(context).cardTheme.color,
             contentPadding: const EdgeInsets.symmetric(
               vertical: 14,
               horizontal: 16,
@@ -202,7 +198,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         const SizedBox(height: 6),
         Container(
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            color: Theme.of(context).cardTheme.color,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Theme(
@@ -212,9 +208,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   backgroundColor: MaterialStateProperty.all(Colors.grey[100]),
                   shape: MaterialStateProperty.all(
                     RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        12,
-                      ), // ✅ Ajout du BorderRadius
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
@@ -285,7 +279,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            color: Theme.of(context).cardTheme.color,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -312,7 +306,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
           Text(
             DateFormat('dd MMM yyyy').format(_dueDate),
-            style: const TextStyle(fontSize: 16, color: Colors.black87),
+            style: TextStyle(
+              fontSize: 16,
+              color: Theme.of(context).textTheme.bodyMedium!.color,
+            ),
           ),
         ],
       ),
@@ -339,10 +336,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         ),
         Text(
           _daysRemaining(),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Theme.of(context).textTheme.bodyMedium!.color,
           ),
         ),
       ],
@@ -389,7 +386,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             child: ElevatedButton(
               onPressed: () => _saveTask(appState),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
+                backgroundColor: Theme.of(context).primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -398,7 +395,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   'Save',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Theme.of(context).cardTheme.color,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

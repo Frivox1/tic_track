@@ -50,8 +50,8 @@ class MyApp extends StatelessWidget {
     return ThemeData(
       fontFamily: 'Raleway',
       brightness: Brightness.light,
-      primaryColor: Colors.blue,
-      scaffoldBackgroundColor: Colors.grey[100],
+      primaryColor: Colors.black,
+      scaffoldBackgroundColor: Colors.grey[200],
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
       ),
       cardTheme: CardTheme(
         color: Colors.grey[50],
-        elevation: 0,
+        elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       textTheme: TextTheme(
@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
         bodyMedium: TextStyle(color: Colors.grey[900]),
         bodySmall: TextStyle(color: Colors.grey),
       ),
-      iconTheme: IconThemeData(color: Colors.grey, size: 16),
+      iconTheme: IconThemeData(color: Colors.grey, size: 22),
       chipTheme: ChipThemeData(
         backgroundColor: Colors.transparent,
         disabledColor: Colors.transparent,
@@ -89,17 +89,14 @@ class MyApp extends StatelessWidget {
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
-      drawerTheme: DrawerThemeData(backgroundColor: Colors.white),
+      drawerTheme: DrawerThemeData(backgroundColor: Colors.grey[200]),
       listTileTheme: ListTileThemeData(
         iconColor: Colors.black,
         textColor: Colors.black87,
-        selectedColor:
-            Colors.blue, // Couleur du texte et de l'icône quand sélectionné
-        selectedTileColor: Colors.blue.withOpacity(
-          0.1,
-        ), // Couleur de fond quand sélectionné
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        selectedColor: Colors.black87,
       ),
+      dialogTheme: DialogTheme(backgroundColor: Colors.white),
     );
   }
 
@@ -122,7 +119,7 @@ class MyApp extends StatelessWidget {
       ),
       cardTheme: CardTheme(
         color: Color(0xFF424242),
-        elevation: 0,
+        elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       textTheme: TextTheme(
@@ -134,7 +131,7 @@ class MyApp extends StatelessWidget {
         bodyMedium: TextStyle(color: Colors.grey[300]),
         bodySmall: TextStyle(color: Colors.grey[400]),
       ),
-      iconTheme: IconThemeData(color: Colors.grey[400], size: 16),
+      iconTheme: IconThemeData(color: Colors.grey, size: 16),
       chipTheme: ChipThemeData(
         backgroundColor: Colors.transparent,
         disabledColor: Colors.transparent,
@@ -152,8 +149,11 @@ class MyApp extends StatelessWidget {
         iconColor: Colors.white70,
         textColor: Colors.white,
         selectedColor: Colors.red,
-        selectedTileColor: Colors.tealAccent.withOpacity(0.1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      dialogTheme: DialogTheme(
+        backgroundColor: Color(0xFF424242),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

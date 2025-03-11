@@ -75,7 +75,7 @@ class SideMenu extends StatelessWidget {
   ) {
     final appState = Provider.of<AppStateProvider>(context, listen: false);
     return ListTile(
-      leading: Icon(icon, color: Colors.black),
+      leading: Icon(icon, size: 22),
       title: Text(title),
       selected: appState.selectedIndex == index,
       selectedTileColor: Colors.black.withOpacity(0.1),
@@ -85,8 +85,8 @@ class SideMenu extends StatelessWidget {
 
   Widget _buildContactUsTile(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.email_outlined),
-      title: Text('Get in touch'),
+      leading: Icon(Icons.email_outlined, size: 16),
+      title: Text('Report an issue', style: TextStyle(fontSize: 13)),
       onTap: () {
         _launchEmail();
       },

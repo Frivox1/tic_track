@@ -28,7 +28,6 @@ class _TaskCardState extends State<TaskCard> {
         duration: Duration(milliseconds: 200),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          // color: _isHovered ? Colors.grey[200] : Colors.grey[50],
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -42,7 +41,10 @@ class _TaskCardState extends State<TaskCard> {
           ],
         ),
         child: Material(
-          color: Colors.transparent,
+          color: Theme.of(context).cardTheme.color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: InkWell(
             onTap: widget.onTap,
             borderRadius: BorderRadius.circular(12),

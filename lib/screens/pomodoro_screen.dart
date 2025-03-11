@@ -131,7 +131,6 @@ class PomodoroScreen extends StatelessWidget {
           );
 
           return Scaffold(
-            backgroundColor: Colors.grey[100],
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -143,10 +142,10 @@ class PomodoroScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   Text(
                     '$minutes:$seconds',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 72,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Theme.of(context).primaryColor,
                     ),
                   ),
                   const SizedBox(height: 30),

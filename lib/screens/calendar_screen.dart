@@ -62,7 +62,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Consumer<AppStateProvider>(
       builder: (context, appState, child) {
         return Scaffold(
-          backgroundColor: Colors.grey[100],
           appBar: AppBar(
             toolbarHeight: 100,
             title: Padding(
@@ -111,7 +110,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
-                  defaultTextStyle: TextStyle(color: Colors.black),
+                  defaultTextStyle: TextStyle(
+                    color: Theme.of(context).textTheme.bodyMedium!.color,
+                  ),
                   weekendTextStyle: TextStyle(color: Colors.red),
                 ),
                 headerStyle: HeaderStyle(
@@ -125,14 +126,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   titleTextStyle: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Theme.of(context).textTheme.titleLarge!.color,
                   ),
                 ),
               ),
               const SizedBox(height: 35),
               Expanded(
                 child: Container(
-                  color: Colors.grey[100],
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 10,
@@ -155,7 +156,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         itemBuilder: (context, index) {
                           final task = tasks[index];
                           return Card(
-                            color: Colors.white,
+                            color: Theme.of(context).cardTheme.color,
                             margin: EdgeInsets.symmetric(vertical: 8),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
