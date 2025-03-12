@@ -6,11 +6,18 @@ import '../models/task.dart';
 
 class AppStateProvider with ChangeNotifier {
   int _selectedIndex = 0;
+  bool _isDarkMode = false;
 
   int get selectedIndex => _selectedIndex;
+  bool get isDarkMode => _isDarkMode;
 
   void setSelectedIndex(int index) {
     _selectedIndex = index;
+    notifyListeners();
+  }
+
+  void toggleDarkMode() {
+    _isDarkMode = !_isDarkMode;
     notifyListeners();
   }
 

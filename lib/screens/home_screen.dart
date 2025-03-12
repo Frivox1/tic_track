@@ -29,7 +29,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          backgroundColor: Colors.grey[100],
           body: LayoutBuilder(
             builder: (context, constraints) {
               const double minColumnWidth = 300;
@@ -55,8 +54,7 @@ class HomeScreen extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => _addTask(context, appState),
-            backgroundColor: Colors.black,
-            child: const Icon(Icons.add, color: Colors.white),
+            child: const Icon(Icons.add),
           ),
         );
       },
@@ -184,7 +182,13 @@ class HomeScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Theme.of(context).textTheme.bodyMedium!.color,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -195,7 +199,13 @@ class HomeScreen extends StatelessWidget {
                 _clearDoneTasks(appState);
                 Navigator.of(context).pop();
               },
-              child: const Text('Delete'),
+              child: Text(
+                'Delete',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Theme.of(context).textTheme.bodyMedium!.color,
+                ),
+              ),
             ),
           ],
         );
@@ -229,26 +239,27 @@ class HomeScreen extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
               child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardTheme.color,
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.8,
                   maxHeight: MediaQuery.of(context).size.height * 0.8,
                 ),
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(32.0),
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildTitleField(titleController, 'Title'),
+                      _buildTitleField(context, titleController),
                       const SizedBox(height: 14),
                       _buildTextField(
+                        context,
                         descriptionController,
                         'Description',
-                        maxLines: 3,
                       ),
                       const SizedBox(height: 14),
                       Container(
@@ -257,21 +268,30 @@ class HomeScreen extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.grey[200],
+                          color: Theme.of(context).cardTheme.color,
                           borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color:
+                                Theme.of(context).textTheme.bodyMedium!.color!,
+                          ),
                         ),
                         child: Consumer<AppStateProvider>(
                           builder: (context, appState, child) {
                             final labels = appState.labels;
                             return Theme(
-                              data: Theme.of(
-                                context,
-                              ).copyWith(canvasColor: Colors.grey[100]),
+                              data: Theme.of(context).copyWith(
+                                canvasColor: Theme.of(context).cardColor,
+                              ),
                               child: DropdownButton<Label>(
                                 value: selectedLabel,
-                                hint: const Text(
+                                hint: Text(
                                   'Choose a label',
-                                  style: TextStyle(color: Colors.black54),
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium!.color,
+                                  ),
                                 ),
                                 isExpanded: true,
                                 underline: SizedBox(),
@@ -307,12 +327,11 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       ElevatedButton(
-                        child: Text(
-                          'Due date: ${_formatDateTime(dueDate)}',
-                          style: const TextStyle(color: Colors.black),
-                        ),
+                        child: Text('Due date: ${_formatDateTime(dueDate)}'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[200],
+                          backgroundColor: Theme.of(context).primaryColor,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -354,11 +373,14 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            child: const Text(
+                            child: Text(
                               'Cancel',
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Colors.black,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium!.color,
                               ),
                             ),
                           ),
@@ -377,11 +399,14 @@ class HomeScreen extends StatelessWidget {
                                 Navigator.of(context).pop();
                               }
                             },
-                            child: const Text(
+                            child: Text(
                               'Add',
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Colors.black,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium!.color,
                               ),
                             ),
                           ),
@@ -398,88 +423,60 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleField(TextEditingController controller, String label) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+  Widget _buildTitleField(
+    BuildContext context,
+    TextEditingController controller,
+  ) {
+    return TextField(
+      controller: controller,
+      cursorColor: Colors.grey,
+      maxLength: 22,
+      decoration: InputDecoration(
+        labelText: 'Titre',
+        labelStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyMedium!.color,
         ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          style: const TextStyle(fontSize: 16),
-          maxLength: 12,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.grey[200],
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 14,
-              horizontal: 16,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.black, width: 2),
-            ),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).textTheme.bodyMedium!.color!,
           ),
         ),
-      ],
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).primaryColor),
+        ),
+      ),
     );
   }
 
   Widget _buildTextField(
+    BuildContext context,
     TextEditingController controller,
-    String label, {
-    int maxLines = 3,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    String label,
+  ) {
+    return TextField(
+      controller: controller,
+      cursorColor: Colors.grey,
+      maxLength: 100,
+      maxLines: 2,
+      decoration: InputDecoration(
+        labelText: 'Description',
+        labelStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyMedium!.color,
         ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          style: const TextStyle(fontSize: 16),
-          maxLines: maxLines,
-          maxLength: 80,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.grey[200],
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 14,
-              horizontal: 16,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.black, width: 2),
-            ),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).textTheme.bodyMedium!.color!,
           ),
         ),
-      ],
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).primaryColor),
+        ),
+      ),
     );
   }
 
   String _formatDateTime(DateTime dateTime) {
-    return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
+    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm');
+    return formatter.format(dateTime);
   }
 }

@@ -10,7 +10,7 @@ import '../providers/app_state_provider.dart';
 import 'still_dev_screen.dart';
 
 class MainScreen extends StatelessWidget {
-  MainScreen({Key? key}) : super(key: key);
+  MainScreen({super.key});
 
   final List<Widget> _screens = [
     HomeScreen(),
