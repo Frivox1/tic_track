@@ -165,7 +165,10 @@ class MyApp extends StatelessWidget {
       title: 'Tic Track',
       theme: lightTheme(),
       darkTheme: darkTheme(),
-      themeMode: ThemeMode.system, // Utilise le mode du système (clair/sombre)
+      themeMode:
+          Provider.of<AppStateProvider>(context).isDarkMode
+              ? ThemeMode.dark
+              : ThemeMode.light,
       home: MainScreen(),
     );
   }
