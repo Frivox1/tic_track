@@ -1,7 +1,7 @@
 # Tic Track: Task Manager
 
 ## Description
-TaskMaster is an intuitive and efficient task management application designed to help users organize their projects and daily tasks. Using a Kanban approach, the app provides a clear and structured view of your tasks, allowing you to track them from creation to completion. With customizable labels, a calendar view, and a minimalist Pomodoro timer, TaskMaster offers a comprehensive solution for managing your tasks and boosting productivity.
+Tic Track is an intuitive and efficient task management application designed to help users organize their projects and daily tasks. Using a Kanban approach, the app provides a clear and structured view of your tasks, allowing you to track them from creation to completion. With customizable labels, a calendar view, and a minimalist Pomodoro timer, Tic Track offers a comprehensive solution for managing your tasks and boosting productivity.
 
 ## Main Features
 
