@@ -6,10 +6,13 @@ import 'package:provider/provider.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'providers/app_state_provider.dart';
 import 'providers/selected_index_provider.dart';
+import 'package:tray_manager/tray_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
+
+  await trayManager.setIcon('assets/images/tic_track_logo.png');
 
   // Initialisation des notifications locales
   await localNotifier.setup(

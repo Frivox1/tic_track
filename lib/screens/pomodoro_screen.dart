@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:local_notifier/local_notifier.dart';
+import 'package:tray_manager/tray_manager.dart';
 
 enum PomodoroState { work, shortBreak, longBreak }
 
@@ -42,6 +43,7 @@ class PomodoroNotifier extends ChangeNotifier {
             completedWorkSessions: _model.completedWorkSessions,
           );
           notifyListeners();
+          _updateTray();
         } else {
           timer.cancel();
           _switchState();
@@ -50,6 +52,7 @@ class PomodoroNotifier extends ChangeNotifier {
     }
     isRunning = !isRunning;
     notifyListeners();
+    _updateTray();
   }
 
   void _switchState() {
@@ -84,6 +87,7 @@ class PomodoroNotifier extends ChangeNotifier {
     }
     isRunning = false;
     notifyListeners();
+    _updateTray();
   }
 
   void resetTimer() {
@@ -95,6 +99,7 @@ class PomodoroNotifier extends ChangeNotifier {
     );
     isRunning = false;
     notifyListeners();
+    _updateTray();
   }
 
   void updateDuration(int minutes) {
@@ -108,6 +113,12 @@ class PomodoroNotifier extends ChangeNotifier {
       body: body,
     );
     notification.show();
+  }
+
+  void _updateTray() {
+    final minutes = (_model.timeLeft ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_model.timeLeft % 60).toString().padLeft(2, '0');
+    trayManager.setTitle(' $minutes:$seconds');
   }
 }
 
