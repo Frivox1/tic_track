@@ -2,11 +2,13 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 import '../models/task.dart';
 import '../models/label.dart';
 import '../models/category.dart';
+import '../models/note.dart';
 
 class HiveService {
   static const String taskBoxName = 'tasks';
   static const String labelBoxName = 'labels';
   static const String categoryBoxName = 'categories';
+  static const String noteBoxName = 'notes';
 
   static Future<void> initHive() async {
     await Hive.initFlutter();
@@ -21,76 +23,66 @@ class HiveService {
     if (!Hive.isAdapterRegistered(CategoryAdapter().typeId)) {
       Hive.registerAdapter(CategoryAdapter());
     }
+    if (!Hive.isAdapterRegistered(NoteAdapter().typeId)) {
+      Hive.registerAdapter(NoteAdapter());
+    }
 
-    // Réouvre les Box après suppression
     await Future.wait([
       Hive.openBox<Category>(categoryBoxName),
       Hive.openBox<Task>(taskBoxName),
       Hive.openBox<Label>(labelBoxName),
+      Hive.openBox<Note>(noteBoxName),
     ]);
   }
 
-  static Box<Task> getTaskBox() {
-    return Hive.box<Task>(taskBoxName);
-  }
+  // Gestion des tâches
+  static Box<Task> getTaskBox() => Hive.box<Task>(taskBoxName);
 
-  static Box<Label> getLabelBox() {
-    return Hive.box<Label>(labelBoxName);
-  }
+  static Future<void> addTask(Task task) async => await getTaskBox().add(task);
 
-  static Future<void> addTask(Task task) async {
-    final box = getTaskBox();
-    await box.add(task);
-  }
+  static Future<void> updateTask(Task task) async => await task.save();
 
-  static Future<void> updateTask(Task task) async {
-    await task.save();
-  }
+  static Future<void> deleteTask(Task task) async => await task.delete();
 
-  static Future<void> deleteTask(Task task) async {
-    await task.delete();
-  }
+  // Gestion des labels
+  static Box<Label> getLabelBox() => Hive.box<Label>(labelBoxName);
 
-  static Future<void> addLabel(Label label) async {
-    final box = getLabelBox();
-    await box.add(label);
-  }
+  static Future<void> addLabel(Label label) async =>
+      await getLabelBox().add(label);
 
-  static Future<void> updateLabel(Label label) async {
-    await label.save();
-  }
+  static Future<void> updateLabel(Label label) async => await label.save();
 
-  static Future<void> deleteLabel(Label label) async {
-    await label.delete();
-  }
+  static Future<void> deleteLabel(Label label) async => await label.delete();
 
   static Label? getLabelByName(String name) {
-    final labelBox = getLabelBox();
     try {
-      return labelBox.values.firstWhere((label) => label.name == name);
+      return getLabelBox().values.firstWhere((label) => label.name == name);
     } catch (e) {
       return null;
     }
   }
 
-  static Box<Category> getCategoryBox() {
-    return Hive.box<Category>('categories');
-  }
+  // Gestion des catégories
+  static Box<Category> getCategoryBox() => Hive.box<Category>(categoryBoxName);
 
-  static void addCategory(Category category) {
-    getCategoryBox().add(category);
-  }
+  static Future<void> addCategory(Category category) async =>
+      await getCategoryBox().add(category);
 
-  static void updateCategory(Category category) {
-    category.save();
-  }
+  static Future<void> updateCategory(Category category) async =>
+      await category.save();
 
-  static void deleteCategory(Category category) {
-    category.delete();
-  }
+  static Future<void> deleteCategory(Category category) async =>
+      await category.delete();
 
-  static Category? getCategory(int categoryId) {
-    final box = Hive.box<Category>('categories');
-    return box.get(categoryId);
-  }
+  static Category? getCategory(int categoryId) =>
+      getCategoryBox().get(categoryId);
+
+  // Gestion des notes
+  static Box<Note> getNoteBox() => Hive.box<Note>(noteBoxName);
+
+  static Future<void> addNote(Note note) async => await getNoteBox().add(note);
+
+  static Future<void> updateNote(Note note) async => await note.save();
+
+  static Future<void> deleteNote(Note note) async => await note.delete();
 }
