@@ -25,9 +25,7 @@ class _NotesScreenState extends State<NotesScreen> {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                width:
-                    MediaQuery.of(context).size.width *
-                    0.5, // Largeur 50% de l'écran
+                width: MediaQuery.of(context).size.width * 0.5,
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Theme.of(context).scaffoldBackgroundColor,
@@ -53,25 +51,28 @@ class _NotesScreenState extends State<NotesScreen> {
                     SizedBox(height: 20),
                     TextField(
                       controller: titleController,
-                      decoration: InputDecoration(
-                        labelText: 'Title',
-                        border: OutlineInputBorder(),
+                      style: TextStyle(fontSize: 18),
+                      decoration: InputDecoration.collapsed(
+                        hintText: 'Title',
+                        hintStyle: TextStyle(color: Colors.grey),
                       ),
                     ),
-                    SizedBox(height: 15),
+                    Divider(),
+                    SizedBox(height: 10),
                     TextField(
                       controller: contentController,
                       maxLines: 5,
-                      decoration: InputDecoration(
-                        labelText: 'Content',
-                        border: OutlineInputBorder(),
+                      style: TextStyle(fontSize: 16),
+                      decoration: InputDecoration.collapsed(
+                        hintText: 'Content',
+                        hintStyle: TextStyle(color: Colors.grey),
                       ),
                     ),
                     SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        OutlinedButton(
+                        TextButton(
                           onPressed: () => Navigator.pop(context),
                           child: Text('Cancel'),
                         ),
@@ -86,12 +87,6 @@ class _NotesScreenState extends State<NotesScreen> {
                             setState(() {});
                             Navigator.pop(context);
                           },
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                          ),
                           child: Text('Save'),
                         ),
                       ],
@@ -99,6 +94,89 @@ class _NotesScreenState extends State<NotesScreen> {
                   ],
                 ),
               ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _editNote(Note note, int index) {
+    TextEditingController titleController = TextEditingController(
+      text: note.title,
+    );
+    TextEditingController contentController = TextEditingController(
+      text: note.content,
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Edit Note',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Divider(),
+                SizedBox(height: 10),
+                TextField(
+                  controller: titleController,
+                  style: TextStyle(fontSize: 18),
+                  decoration: InputDecoration.collapsed(
+                    hintText: 'Title',
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
+                ),
+                Divider(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: TextField(
+                      controller: contentController,
+                      maxLines: null,
+                      style: TextStyle(fontSize: 16),
+                      decoration: InputDecoration.collapsed(
+                        hintText: 'Content',
+                        hintStyle: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final updatedNote = Note(
+                          title: titleController.text,
+                          content: contentController.text,
+                        );
+                        await HiveService.updateNote(index, updatedNote);
+                        setState(() {});
+                        Navigator.pop(context);
+                      },
+                      child: Text('Save'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         );
@@ -119,7 +197,7 @@ class _NotesScreenState extends State<NotesScreen> {
         forceMaterialTransparency: true,
         title: Padding(
           padding: const EdgeInsets.only(top: 40.0),
-          child: const Align(
+          child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
               'Notes',
@@ -128,34 +206,72 @@ class _NotesScreenState extends State<NotesScreen> {
           ),
         ),
       ),
-      body: ValueListenableBuilder(
-        valueListenable: HiveService.getNoteBox().listenable(),
-        builder: (context, box, _) {
-          if (box.isEmpty) {
-            return Center(
-              child: Text(
-                'No notes yet. Add some!',
-                style: TextStyle(fontSize: 20),
-              ),
-            );
-          }
-          return ListView.builder(
-            itemCount: box.length,
-            itemBuilder: (context, index) {
-              final note = box.getAt(index);
-              return Card(
-                child: ListTile(
-                  title: Text(note?.title ?? ''),
-                  subtitle: Text(note?.content ?? ''),
-                  trailing: IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () => _deleteNote(note!),
-                  ),
-                ),
-              );
-            },
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Center(
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.8,
+            ), // Limite la largeur de la liste
+            child: ValueListenableBuilder(
+              valueListenable: HiveService.getNoteBox().listenable(),
+              builder: (context, box, _) {
+                if (box.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No notes yet. Add some!',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  );
+                }
+                return Column(
+                  children: [
+                    SizedBox(height: 60),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: box.length,
+                        itemBuilder: (context, index) {
+                          final note = box.getAt(index);
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              elevation: 5,
+                              child: ListTile(
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 10,
+                                ),
+                                title: Text(
+                                  note?.title ?? '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Text(
+                                  note?.content ?? '',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                onTap: () => _editNote(note!, index),
+                                trailing: IconButton(
+                                  icon: Icon(Icons.close),
+                                  onPressed: () => _deleteNote(note!),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addNote,

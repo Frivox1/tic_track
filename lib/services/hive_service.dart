@@ -82,7 +82,10 @@ class HiveService {
 
   static Future<void> addNote(Note note) async => await getNoteBox().add(note);
 
-  static Future<void> updateNote(Note note) async => await note.save();
+  static Future<void> updateNote(int index, Note note) async {
+    final box = getNoteBox();
+    await box.putAt(index, note);
+  }
 
   static Future<void> deleteNote(Note note) async => await note.delete();
 }
