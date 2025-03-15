@@ -21,6 +21,11 @@ class AppStateProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setThemeBasedOnSystem(bool isDark) {
+    _isDarkMode = isDark;
+    notifyListeners();
+  }
+
   List<AppCategory.Category> get categories =>
       HiveService.getCategoryBox().values.toList();
   List<Label> get labels => HiveService.getLabelBox().values.toList();

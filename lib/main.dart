@@ -35,19 +35,23 @@ void main() async {
   });
 
   await HiveService.initHive();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
         ChangeNotifierProvider(create: (_) => SelectedIndexProvider()),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
 
   static ThemeData lightTheme() {
     return ThemeData(
@@ -55,7 +59,7 @@ class MyApp extends StatelessWidget {
       brightness: Brightness.light,
       primaryColor: Colors.black,
       scaffoldBackgroundColor: Colors.grey[200],
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 100,
@@ -70,25 +74,17 @@ class MyApp extends StatelessWidget {
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         titleLarge: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
-        bodyMedium: TextStyle(color: Colors.grey[900]),
+        bodyMedium: TextStyle(color: Colors.black),
         bodySmall: TextStyle(color: Colors.grey),
       ),
-      iconTheme: IconThemeData(color: Colors.grey, size: 22),
-      chipTheme: ChipThemeData(
-        backgroundColor: Colors.transparent,
-        disabledColor: Colors.transparent,
-        selectedColor: Colors.transparent,
-        secondarySelectedColor: Colors.transparent,
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        labelStyle: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
+      iconTheme: const IconThemeData(color: Colors.grey, size: 22),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
@@ -99,18 +95,17 @@ class MyApp extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         selectedColor: Colors.black87,
       ),
-      dialogTheme: DialogTheme(backgroundColor: Colors.white),
+      dialogTheme: const DialogTheme(backgroundColor: Colors.white),
     );
   }
 
-  // Thème Sombre
   static ThemeData darkTheme() {
     return ThemeData(
       fontFamily: 'Raleway',
       brightness: Brightness.dark,
       primaryColor: Colors.white,
-      scaffoldBackgroundColor: Color(0xFF303030),
-      appBarTheme: AppBarTheme(
+      scaffoldBackgroundColor: const Color(0xFF303030),
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 100,
@@ -121,33 +116,25 @@ class MyApp extends StatelessWidget {
         ),
       ),
       cardTheme: CardTheme(
-        color: Color(0xFF424242),
+        color: const Color(0xFF424242),
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         titleLarge: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
-        bodyMedium: TextStyle(color: Colors.grey[300]),
-        bodySmall: TextStyle(color: Colors.grey[400]),
+        bodyMedium: TextStyle(color: Colors.grey),
+        bodySmall: TextStyle(color: Colors.grey),
       ),
-      iconTheme: IconThemeData(color: Colors.grey, size: 16),
-      chipTheme: ChipThemeData(
-        backgroundColor: Colors.transparent,
-        disabledColor: Colors.transparent,
-        selectedColor: Colors.transparent,
-        secondarySelectedColor: Colors.transparent,
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        labelStyle: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
+      iconTheme: const IconThemeData(color: Colors.grey, size: 16),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
-      drawerTheme: DrawerThemeData(backgroundColor: Color(0xFF303030)),
+      drawerTheme: const DrawerThemeData(backgroundColor: Color(0xFF303030)),
       listTileTheme: ListTileThemeData(
         iconColor: Colors.white70,
         textColor: Colors.white,
@@ -160,18 +147,52 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // Attendre la fin du premier build avant de changer l'état
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final systemBrightness =
+          WidgetsBinding.instance.platformDispatcher.platformBrightness;
+      Provider.of<AppStateProvider>(
+        context,
+        listen: false,
+      ).setThemeBasedOnSystem(systemBrightness == Brightness.dark);
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    super.didChangePlatformBrightness();
+    final systemBrightness =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    Provider.of<AppStateProvider>(
+      context,
+      listen: false,
+    ).setThemeBasedOnSystem(systemBrightness == Brightness.dark);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppStateProvider>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tic Track',
-      theme: lightTheme(),
-      darkTheme: darkTheme(),
-      themeMode:
-          Provider.of<AppStateProvider>(context).isDarkMode
-              ? ThemeMode.dark
-              : ThemeMode.light,
+      theme: MyApp.lightTheme(),
+      darkTheme: MyApp.darkTheme(),
+      themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: MainScreen(),
     );
   }
