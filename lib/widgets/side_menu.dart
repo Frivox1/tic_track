@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../screens/settings_screen.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({Key? key}) : super(key: key);
@@ -64,10 +64,8 @@ class SideMenu extends StatelessWidget {
                   ],
                 ),
               ),
-              _buildDarkModeSwitch(context),
-              const SizedBox(height: 10),
-              _buildContactUsTile(context),
-              const SizedBox(height: 10),
+              _buildSettingsTile(context),
+              const SizedBox(height: 15),
             ],
           ),
         );
@@ -75,6 +73,7 @@ class SideMenu extends StatelessWidget {
     );
   }
 
+  // Fonction pour construire un ListTile pour chaque item du menu
   Widget _buildListTile(
     BuildContext context,
     int index,
@@ -91,87 +90,16 @@ class SideMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildContactUsTile(BuildContext context) {
+  // Nouveau bouton pour accéder à la page Settings
+  Widget _buildSettingsTile(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.email_outlined, size: 16),
-      title: Text('Report an issue', style: TextStyle(fontSize: 13)),
+      leading: Icon(Icons.settings_outlined, size: 22),
+      title: Text('Settings'),
       onTap: () {
-        _launchEmail();
-      },
-    );
-  }
-
-  // Fonction pour lancer une application de messagerie ou un email
-  void _launchEmail() async {
-    final Uri emailUri = Uri(
-      scheme: 'mailto',
-      path: 'mertens.valery@gmail.com',
-      queryParameters: {'subject': 'Issue with the app'},
-    );
-
-    if (await canLaunch(emailUri.toString())) {
-      await launch(emailUri.toString());
-    } else {
-      throw 'Could not open the email app.';
-    }
-  }
-
-  Widget _buildDarkModeSwitch(BuildContext context) {
-    return Consumer<AppStateProvider>(
-      builder: (context, appState, child) {
-        return GestureDetector(
-          onTap: () => appState.toggleDarkMode(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  appState.isDarkMode ? Icons.dark_mode : Icons.light_mode,
-                  size: 22,
-                  color:
-                      appState.isDarkMode ? Colors.grey[600] : Colors.grey[600],
-                ),
-                SizedBox(width: 70),
-                AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  width: 50,
-                  height: 25,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color:
-                        appState.isDarkMode
-                            ? Colors.grey[300]
-                            : Colors.grey[300],
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      AnimatedPositioned(
-                        duration: Duration(milliseconds: 300),
-                        left: appState.isDarkMode ? 26 : 4,
-                        child: Container(
-                          width: 18,
-                          height: 18,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+        // Naviguer vers la page Settings
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SettingsScreen()),
         );
       },
     );

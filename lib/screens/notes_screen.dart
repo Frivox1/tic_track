@@ -274,6 +274,7 @@ class _NotesScreenState extends State<NotesScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'notes',
         onPressed: _addNote,
         child: Icon(Icons.add),
         tooltip: 'New Note',
