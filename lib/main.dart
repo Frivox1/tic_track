@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tic_track/screens/main_screen.dart';
 import 'services/hive_service.dart';
 import 'package:window_manager/window_manager.dart';
@@ -7,10 +8,12 @@ import 'package:local_notifier/local_notifier.dart';
 import 'providers/app_state_provider.dart';
 import 'providers/selected_index_provider.dart';
 import 'package:tray_manager/tray_manager.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
+  await hotKeyManager.unregisterAll();
 
   await trayManager.setIcon('assets/images/tic_track_logo.png');
 
@@ -20,6 +23,7 @@ void main() async {
     shortcutPolicy: ShortcutPolicy.requireCreate,
   );
 
+  // Initialisation de la fenêtre principale
   WindowOptions windowOptions = const WindowOptions(
     size: Size(1300, 800),
     minimumSize: Size(800, 600),
@@ -36,6 +40,14 @@ void main() async {
 
   await HiveService.initHive();
 
+  // Initialisation du gestionnaire de raccourcis clavier
+  await hotKeyManager.register(
+    HotKey(key: LogicalKeyboardKey.keyP, modifiers: [HotKeyModifier.control]),
+    keyDownHandler: (_) async {
+      await _showSmallWindow();
+    },
+  );
+
   runApp(
     MultiProvider(
       providers: [
@@ -45,6 +57,19 @@ void main() async {
       child: const MyApp(),
     ),
   );
+}
+
+Future<void> _showSmallWindow() async {
+  // Modifier la taille et l'apparence de la fenêtre principale pour simuler une petite fenêtre flottante
+  await windowManager.setBounds(
+    Rect.fromLTWH(0, 0, 400, 300),
+  ); // Position et taille de la petite fenêtre
+  await windowManager.setAlwaysOnTop(
+    true,
+  ); // Assurer que la fenêtre soit toujours au-dessus des autres
+  await windowManager
+      .show(); // Afficher la fenêtre si elle n'est pas déjà affichée
+  await windowManager.focus(); // Mettre la fenêtre au premier plan
 }
 
 class MyApp extends StatefulWidget {
