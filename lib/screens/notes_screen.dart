@@ -74,10 +74,30 @@ class _NotesScreenState extends State<NotesScreen> {
                       children: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: Text('Cancel'),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color:
+                                  Theme.of(context).textTheme.bodyMedium!.color,
+                            ),
+                          ),
                         ),
                         SizedBox(width: 10),
                         ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                          ),
                           onPressed: () async {
                             final newNote = Note(
                               title: titleController.text,
@@ -87,7 +107,7 @@ class _NotesScreenState extends State<NotesScreen> {
                             setState(() {});
                             Navigator.pop(context);
                           },
-                          child: Text('Save'),
+                          child: Text('Save', style: TextStyle(fontSize: 18)),
                         ),
                       ],
                     ),
@@ -156,13 +176,33 @@ class _NotesScreenState extends State<NotesScreen> {
                 ),
                 SizedBox(height: 20),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text('Cancel'),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Theme.of(context).textTheme.bodyMedium!.color,
+                        ),
+                      ),
                     ),
+                    SizedBox(width: 10),
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
                       onPressed: () async {
                         final updatedNote = Note(
                           title: titleController.text,
@@ -172,7 +212,7 @@ class _NotesScreenState extends State<NotesScreen> {
                         setState(() {});
                         Navigator.pop(context);
                       },
-                      child: Text('Save'),
+                      child: Text('Save', style: TextStyle(fontSize: 18)),
                     ),
                   ],
                 ),

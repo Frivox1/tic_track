@@ -8,12 +8,10 @@ import 'package:local_notifier/local_notifier.dart';
 import 'providers/app_state_provider.dart';
 import 'providers/selected_index_provider.dart';
 import 'package:tray_manager/tray_manager.dart';
-import 'package:hotkey_manager/hotkey_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
-  await hotKeyManager.unregisterAll();
 
   await trayManager.setIcon('assets/images/tic_track_logo.png');
 
@@ -40,14 +38,6 @@ void main() async {
 
   await HiveService.initHive();
 
-  // Initialisation du gestionnaire de raccourcis clavier
-  await hotKeyManager.register(
-    HotKey(key: LogicalKeyboardKey.keyP, modifiers: [HotKeyModifier.control]),
-    keyDownHandler: (_) async {
-      await _showSmallWindow();
-    },
-  );
-
   runApp(
     MultiProvider(
       providers: [
@@ -57,19 +47,6 @@ void main() async {
       child: const MyApp(),
     ),
   );
-}
-
-Future<void> _showSmallWindow() async {
-  // Modifier la taille et l'apparence de la fenêtre principale pour simuler une petite fenêtre flottante
-  await windowManager.setBounds(
-    Rect.fromLTWH(0, 0, 400, 300),
-  ); // Position et taille de la petite fenêtre
-  await windowManager.setAlwaysOnTop(
-    true,
-  ); // Assurer que la fenêtre soit toujours au-dessus des autres
-  await windowManager
-      .show(); // Afficher la fenêtre si elle n'est pas déjà affichée
-  await windowManager.focus(); // Mettre la fenêtre au premier plan
 }
 
 class MyApp extends StatefulWidget {
@@ -120,6 +97,11 @@ class MyApp extends StatefulWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         selectedColor: Colors.black87,
       ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: Colors.black,
+        selectionColor: Colors.red,
+        selectionHandleColor: Colors.red,
+      ),
       dialogTheme: const DialogTheme(backgroundColor: Colors.white),
     );
   }
@@ -165,6 +147,11 @@ class MyApp extends StatefulWidget {
         textColor: Colors.white,
         selectedColor: Colors.red,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: Colors.white,
+        selectionColor: Colors.red,
+        selectionHandleColor: Colors.red,
       ),
       dialogTheme: DialogTheme(
         backgroundColor: Color(0xFF424242),
