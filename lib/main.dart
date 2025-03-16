@@ -8,6 +8,7 @@ import 'package:local_notifier/local_notifier.dart';
 import 'providers/app_state_provider.dart';
 import 'providers/selected_index_provider.dart';
 import 'package:tray_manager/tray_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,9 @@ void main() async {
     appName: 'Tic Track',
     shortcutPolicy: ShortcutPolicy.requireCreate,
   );
+
+  // Vérifier et afficher un message si les notifications ne sont pas activées
+  await _checkAndNotifyUserAboutNotifications();
 
   // Initialisation de la fenêtre principale
   WindowOptions windowOptions = const WindowOptions(
@@ -47,6 +51,18 @@ void main() async {
       child: const MyApp(),
     ),
   );
+}
+
+Future<void> _checkAndNotifyUserAboutNotifications() async {
+  final prefs = await SharedPreferences.getInstance();
+  bool? askedPermission = prefs.getBool('askedNotificationPermission');
+
+  if (askedPermission == null || !askedPermission) {
+    debugPrint(
+      "ℹ️ [Tic Track] Pensez à activer les notifications dans les paramètres système !",
+    );
+    await prefs.setBool('askedNotificationPermission', true);
+  }
 }
 
 class MyApp extends StatefulWidget {
