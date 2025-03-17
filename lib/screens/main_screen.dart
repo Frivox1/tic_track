@@ -8,7 +8,6 @@ import 'label_screen.dart';
 import '../widgets/side_menu.dart';
 import 'pomodoro_screen.dart';
 import '../providers/app_state_provider.dart';
-import 'still_dev_screen.dart';
 import 'notes_screen.dart';
 
 class MainScreen extends StatelessWidget {
@@ -21,7 +20,6 @@ class MainScreen extends StatelessWidget {
     CalendarScreen(),
     PomodoroScreen(),
     NotesScreen(),
-    StillDevScreen(),
     SettingsScreen(),
   ];
 

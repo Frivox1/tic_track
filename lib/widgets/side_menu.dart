@@ -55,12 +55,6 @@ class SideMenu extends StatelessWidget {
                       Icons.sticky_note_2_outlined,
                       'Notes',
                     ),
-                    _buildListTile(
-                      context,
-                      6,
-                      Icons.keyboard_alt_outlined,
-                      'Warm-up',
-                    ),
                   ],
                 ),
               ),
