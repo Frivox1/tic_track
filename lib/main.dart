@@ -22,9 +22,6 @@ void main() async {
     shortcutPolicy: ShortcutPolicy.requireCreate,
   );
 
-  // Vérifier et afficher un message si les notifications ne sont pas activées
-  await _checkAndNotifyUserAboutNotifications();
-
   // Initialisation de la fenêtre principale
   WindowOptions windowOptions = const WindowOptions(
     size: Size(1300, 800),
@@ -51,18 +48,6 @@ void main() async {
       child: const MyApp(),
     ),
   );
-}
-
-Future<void> _checkAndNotifyUserAboutNotifications() async {
-  final prefs = await SharedPreferences.getInstance();
-  bool? askedPermission = prefs.getBool('askedNotificationPermission');
-
-  if (askedPermission == null || !askedPermission) {
-    debugPrint(
-      "ℹ️ [Tic Track] Pensez à activer les notifications dans les paramètres système !",
-    );
-    await prefs.setBool('askedNotificationPermission', true);
-  }
 }
 
 class MyApp extends StatefulWidget {
@@ -183,7 +168,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    // Attendre la fin du premier build avant de changer l'état
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final systemBrightness =
           WidgetsBinding.instance.platformDispatcher.platformBrightness;
@@ -221,7 +205,42 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       theme: MyApp.lightTheme(),
       darkTheme: MyApp.darkTheme(),
       themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: MainScreen(),
+      home: Builder(
+        builder: (context) {
+          // Vérification après le premier rendu
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _checkFirstLaunch(context),
+          );
+          return MainScreen();
+        },
+      ),
     );
+  }
+
+  Future<void> _checkFirstLaunch(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    bool? firstLaunch = prefs.getBool('firstLaunch');
+
+    if (firstLaunch ?? true) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Thank you for installing Tic Track!'),
+            content: const Text(
+              'Make sure to activate the notifications in the settings to receive reminders and information about the pomodoro timer.',
+            ),
+            actions: [
+              TextButton(
+                child: const Text('Sounds good!'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          );
+        },
+      );
+      await prefs.setBool('firstLaunch', false);
+    }
   }
 }
