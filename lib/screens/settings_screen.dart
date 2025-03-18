@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'main_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -38,15 +36,6 @@ class SettingsScreen extends StatelessWidget {
                   _buildContactUsTile(context),
                   const SizedBox(height: 20),
                   _buildAboutTile(context),
-                  ElevatedButton(
-                    child: Text("Réinitialiser l'état de première utilisation"),
-                    onPressed: () async {
-                      await resetFirstLaunchState();
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => MainScreen()),
-                      );
-                    },
-                  ),
                 ],
               ),
             ),
@@ -54,12 +43,6 @@ class SettingsScreen extends StatelessWidget {
         );
       },
     );
-  }
-
-  Future<void> resetFirstLaunchState() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('firstLaunch', true);
-    print("État de première utilisation réinitialisé");
   }
 
   Widget _buildDarkModeSwitch(BuildContext context) {
