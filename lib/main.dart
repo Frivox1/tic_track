@@ -9,6 +9,8 @@ import 'providers/app_state_provider.dart';
 import 'providers/selected_index_provider.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'services/task_notifier_service.dart';
+import 'providers/selected_reminder_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,11 +41,14 @@ void main() async {
 
   await HiveService.initHive();
 
+  TaskNotifierService.startChecking();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
         ChangeNotifierProvider(create: (_) => SelectedIndexProvider()),
+        ChangeNotifierProvider(create: (_) => SelectedReminderProvider()),
       ],
       child: const MyApp(),
     ),

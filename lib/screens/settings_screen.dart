@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../providers/selected_reminder_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -32,6 +33,8 @@ class SettingsScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 40),
                   _buildDarkModeSwitch(context),
+                  const SizedBox(height: 20),
+                  _buildReminderTimeDropdown(context),
                   const SizedBox(height: 20),
                   _buildContactUsTile(context),
                   const SizedBox(height: 20),
@@ -76,6 +79,55 @@ class SettingsScreen extends StatelessWidget {
                 activeColor: Colors.white,
                 activeTrackColor: Colors.grey[600],
                 inactiveTrackColor: Colors.grey[400],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReminderTimeDropdown(BuildContext context) {
+    return Consumer<SelectedReminderProvider>(
+      builder: (context, reminderProvider, child) {
+        return Container(
+          width: 500,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.notifications_active_outlined,
+                    size: 26,
+                    color: Colors.grey[600],
+                  ),
+                  const SizedBox(width: 16),
+                  const Text(
+                    "Time Before Task Reminder",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+              DropdownButtonHideUnderline(
+                child: DropdownButton<int>(
+                  value: reminderProvider.reminderTime,
+                  onChanged: (int? newValue) {
+                    if (newValue != null) {
+                      reminderProvider.setReminderTime(newValue);
+                    }
+                  },
+                  items:
+                      [5, 10, 15, 30, 60].map<DropdownMenuItem<int>>((
+                        int value,
+                      ) {
+                        return DropdownMenuItem<int>(
+                          value: value,
+                          child: Text('$value min'),
+                        );
+                      }).toList(),
+                ),
               ),
             ],
           ),
